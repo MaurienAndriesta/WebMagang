@@ -12,9 +12,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('md_skala_penilaian', function (Blueprint $table) {
-            $table->id(); // Primary key auto-increment
+            $table->uuid('id')->primary(); // Menggunakan UUID sebagai primary key
             $table->integer('angka')->unique(); // Angka skala penilaian (unik)
             $table->string('keterangan'); // Keterangan skala penilaian
+
+            // Kolom Audit
+            $table->timestamps(); // Menambahkan created_at & updated_at
+            $table->uuid('created_by')->nullable(); // Pengguna yang membuat
+            $table->uuid('updated_by')->nullable(); // Pengguna yang mengupdate
+            $table->uuid('deleted_by')->nullable(); // Pengguna yang menghapus
+            $table->softDeletes(); // Menambahkan kolom deleted_at untuk soft delete
         });
     }
 
@@ -23,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        Schema::dropIfExists('md_skala_penilaian');
     }
 };
