@@ -108,11 +108,17 @@
             display: none;
         }
     </style>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Token CSRF untuk Laravel -->
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
 <body>
     <div class="login-container">
         <div class="banner">
-            <img src="img/loginicon.jpg" alt="PLN Icon Plus Banner">
+            <img src="{{ asset('img/loginicon.jpg') }}" alt="PLN Icon Plus Banner">
         </div>
         <form id="login-form" class="login-form">
             <div class="error-message" id="error-message">Username atau password salah!</div>
@@ -131,32 +137,63 @@
             <a href="#" class="forgot-password">Forgot password?</a>
         </form>
     </div>
+
     <script>
-        // Toggle password visibility
-        const togglePassword = document.querySelector('.toggle-password');
-        const passwordInput = document.querySelector('#password');
+    // Toggle password visibility
+    const togglePassword = document.querySelector('.toggle-password');
+    const passwordInput = document.querySelector('#password');
 
-        togglePassword.addEventListener('click', () => {
-            const isPasswordVisible = passwordInput.getAttribute('type') === 'text';
-            passwordInput.setAttribute('type', isPasswordVisible ? 'password' : 'text');
-            togglePassword.textContent = isPasswordVisible ? '👁‍🗨' : '👁';
+    togglePassword.addEventListener('click', () => {
+        const isPasswordVisible = passwordInput.getAttribute('type') === 'text';
+        passwordInput.setAttribute('type', isPasswordVisible ? 'password' : 'text');
+        togglePassword.textContent = isPasswordVisible ? '👁‍🗨' : '👁';
+    });
+
+    // AJAX Login ke Laravel dengan Debugging
+    $(document).ready(function () {
+        $("#login-form").on("submit", function (event) {
+            event.preventDefault(); // Mencegah reload
+
+            var username = $("#username").val();
+            var password = $("#password").val();
+            var csrfToken = $('meta[name="csrf-token"]').attr('content'); // Ambil CSRF token dari meta tag
+
+            // Debugging: Cek data sebelum dikirim
+            console.log("🔍 Mengirim data login...");
+            console.log("Username:", username);
+            console.log("Password:", password);
+            console.log("CSRF Token:", csrfToken);
+
+            $.ajax({
+                url: "{{ route('login.post') }}",
+                type: "POST",
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken // Kirim token CSRF
+                },
+                data: {
+                    username: username,
+                    password: password
+                },
+                success: function (response) {
+                    console.log("✅ Login berhasil!", response); // Debugging: Lihat respons server
+
+                    if (response.redirect) {
+                        console.log("🔀 Redirecting to:", response.redirect);
+                        window.location.href = response.redirect;
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error("❌ Login gagal!");
+                    console.error("Status:", status);
+                    console.error("Error:", error);
+                    console.error("Response:", xhr.responseText); // Debugging: Lihat respons server jika error
+
+                    $("#error-message").text("Username atau password salah!").show();
+                }
+            });
         });
+    });
+</script>
 
-        // Validasi Login (Lokal)
-        document.getElementById("login-form").addEventListener("submit", function(event) {
-            event.preventDefault(); // Mencegah pengiriman form
-
-            var username = document.getElementById("username").value;
-            var password = document.getElementById("password").value;
-
-            if (username === "admin" && password === "admin") {
-                // Jika login benar, arahkan ke dashboard
-                window.location.href = "dashboardadmin";
-            } else {
-                // Jika login salah, tampilkan pesan error
-                document.getElementById("error-message").style.display = "block";
-            }
-        });
-    </script>
 </body>
 </html>

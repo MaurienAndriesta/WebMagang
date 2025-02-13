@@ -114,7 +114,7 @@
                 <option value="#">Nilai Akhir</option>
             </select>
             <button class="kpi-button" onclick="window.location.href='{{ url('/kpi') }}'">KPI</button>
-            <button class="logout-button" onclick="window.location.href='{{ url('/dashboard1') }}'">Logout</button>
+            <button class="logout-button" onclick="window.location.href='{{ url('/') }}'">Logout</button>
         </div>
     </div>
     <div class="main-content">
