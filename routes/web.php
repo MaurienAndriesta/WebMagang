@@ -30,3 +30,4 @@ Route::get('/kpi', function () {
 // Login & Logout
 Route::post('/login', [LoginController::class, 'login'])->name('login.post');
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+//Route::get('/hash-passwords', [LoginController::class, 'hashExistingPasswords']);

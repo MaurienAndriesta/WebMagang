@@ -10,9 +10,9 @@ use App\Models\MdPengguna;
 
 class LoginController extends Controller
 {
+
     public function login(Request $request)
     {
-        // Logging untuk debugging
         Log::info('Percobaan login dengan username: ' . $request->username);
 
         $request->validate([
@@ -20,24 +20,24 @@ class LoginController extends Controller
             'password' => 'required',
         ]);
 
-        // Cari pengguna berdasarkan username
         $user = MdPengguna::where('username', $request->username)->first();
 
         if (!$user) {
             Log::error('Login gagal: Username tidak ditemukan');
-            return response()->json(['error' => 'Username tidak ditemukan!'], 401);
+            return response()->json(['error' => 'Username atau password salah!'], 401);
         }
 
         Log::info('User ditemukan: ' . $user->username);
-
-        // Periksa apakah password cocok dengan hash di database
-        if (!Hash::check($request->password, $user->password)) {
-            Log::error('Login gagal: Password salah untuk user ' . $request->username);
-            return response()->json(['error' => 'Password salah!'], 401);
+        Log::info('Password input: ' . $request->password);
+        Log::info('Password hash di database: ' . $user->password);
+        
+        if ($user && Hash::check($request->password, $user->password)) {
+            session(['user' => $user->username]);
+            return redirect()->route('dashboard');
         }
 
-        // Login pengguna menggunakan guard khusus
-        Auth::guard('web')->login($user);
+        Auth::login($user);
+        Log::error('Login gagal: Password salah untuk user ' . $request->username);
         Log::info('Login berhasil untuk user: ' . $user->username);
 
         return response()->json(['redirect' => url('/dashboardadmin')]);
@@ -45,7 +45,7 @@ class LoginController extends Controller
 
     public function logout()
     {
-        Auth::guard('web')->logout();
+        Auth::logout();
         return redirect('/login')->with('success', 'Logout berhasil!');
     }
 }
