@@ -1,10 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Master Data Bidang</title>
-    <!-- Bootstrap CSS -->
+    <title>Master Data Subbidang</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         .header {
@@ -46,30 +45,27 @@
             <img src="img/LOGO.jpg" alt="PLN Icon Plus">
         </div>
         <div class="nav-buttons">
-            <a href="{{ url('/dashboardadmin') }}">Home</a>
+        <a href="{{ url('/dashboardadmin') }}">Home</a>
             <select class="master-data-select">
                 <option>Master Data</option>
                 <option value="#">Karyawan</option>
                 <option value="{{ url('/md_penilaian') }}">Penilaian</option>
                 <option value="{{ url('/md_bidang') }}">Bidang</option>
-                <option value="#">Sub Bidang</option>
+                <option value="{{ url('/md_subbidang') }}">Sub Bidang</option>
                 <option value="#">Pengguna</option>
                 <option value="#">Skala Penilaian</option>
                 <option value="#">Nilai Akhir</option>
             </select>
             <button class="kpi-button" onclick="window.location.href='{{ url('/kpi') }}'">KPI</button>
-            <button class="logout-button" onclick="window.location.href='{{ url('/') }}'">Logout</button>
+            <button class="logout-button" onclick="window.location.href='{{ url('/dashboard1') }}'">Logout</button>
         </div>
     </div>
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-
-    <!-- Content -->
+</head>
+<body>
     <div class="container mt-4">
         <div class="card">
             <div class="card-header bg-primary text-white">
-                Master Data Bidang
+                Master Data Subbidang
             </div>
             <div class="card-body">
                 <!-- Alert -->
@@ -79,7 +75,7 @@
 
                 <!-- Search and Add -->
                 <div class="d-flex justify-content-between mb-3">
-                    <form method="GET" action="{{ route('bidang.index') }}" class="d-flex">
+                    <form method="GET" action="{{ route('subbidang.index') }}" class="d-flex">
                         <input type="text" name="search" class="form-control" placeholder="Cari..." value="{{ request('search') }}">
                         <button type="submit" class="btn btn-outline-secondary ms-2">Cari</button>
                     </form>
@@ -93,23 +89,22 @@
                     <thead>
                         <tr>
                             <th>No</th>
+                            <th>Nama Subbidang</th>
                             <th>Nama Bidang</th>
                             <th>Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse($bidangs as $bidang)
+                        @forelse($subbidangs as $subbidang)
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
-                                <td>{{ $bidang->nama }}</td>
+                                <td>{{ $subbidang->nama }}</td>
+                                <td>{{ $subbidang->bidang->nama }}</td>
                                 <td>
-                                    <!-- Edit Button -->
-                                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editModal{{ $bidang->id }}">
+                                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editModal{{ $subbidang->id }}">
                                         Edit
                                     </button>
-
-                                    <!-- Delete Form -->
-                                    <form action="{{ route('bidang.destroy', $bidang->id) }}" method="POST" class="d-inline">
+                                    <form action="{{ route('subbidang.destroy', $subbidang->id) }}" method="POST" class="d-inline">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Yakin ingin menghapus data ini?')">Hapus</button>
@@ -118,24 +113,33 @@
                             </tr>
 
                             <!-- Edit Modal -->
-                            <div class="modal fade" id="editModal{{ $bidang->id }}" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+                            <div class="modal fade" id="editModal{{ $subbidang->id }}" tabindex="-1" aria-hidden="true">
                                 <div class="modal-dialog">
-                                    <form action="{{ route('bidang.update', $bidang->id) }}" method="POST">
+                                    <form action="{{ route('subbidang.update', $subbidang->id) }}" method="POST">
                                         @csrf
                                         @method('PUT')
                                         <div class="modal-content">
                                             <div class="modal-header">
-                                                <h5 class="modal-title" id="editModalLabel">Edit Bidang</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                <h5 class="modal-title">Edit Subbidang</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                             </div>
                                             <div class="modal-body">
                                                 <div class="mb-3">
-                                                    <label for="nama" class="form-label">Nama Bidang</label>
-                                                    <input type="text" name="nama" class="form-control" value="{{ $bidang->nama }}" required>
+                                                    <label class="form-label">Nama Subbidang</label>
+                                                    <input type="text" name="nama" class="form-control" value="{{ $subbidang->nama }}" required>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Bidang</label>
+                                                    <select name="unit_id" class="form-control" required>
+                                                        @foreach($bidangs as $bidang)
+                                                            <option value="{{ $bidang->id }}" {{ $subbidang->unit_id == $bidang->id ? 'selected' : '' }}>
+                                                                {{ $bidang->nama }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
                                                 </div>
                                             </div>
                                             <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
                                                 <button type="submit" class="btn btn-primary">Simpan</button>
                                             </div>
                                         </div>
@@ -144,36 +148,43 @@
                             </div>
                         @empty
                             <tr>
-                                <td colspan="3" class="text-center">Data tidak ditemukan</td>
+                                <td colspan="4" class="text-center">Data tidak ditemukan</td>
                             </tr>
                         @endforelse
                     </tbody>
                 </table>
 
-                <!-- Pagination -->
-                {{ $bidangs->appends(['search' => request('search')])->links() }}
+                {{ $subbidangs->links() }}
             </div>
         </div>
     </div>
 
     <!-- Add Modal -->
-    <div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
+    <div class="modal fade" id="addModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
-            <form action="{{ route('bidang.store') }}" method="POST">
+            <form action="{{ route('subbidang.store') }}" method="POST">
                 @csrf
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="addModalLabel">Tambah Bidang</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <h5 class="modal-title">Tambah Subbidang</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
                         <div class="mb-3">
-                            <label for="nama" class="form-label">Nama Bidang</label>
+                            <label class="form-label">Nama Subbidang</label>
                             <input type="text" name="nama" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Bidang</label>
+                            <select name="unit_id" class="form-control" required>
+                                <option value="">Pilih Bidang</option>
+                                @foreach($bidangs as $bidang)
+                                    <option value="{{ $bidang->id }}">{{ $bidang->nama }}</option>
+                                @endforeach
+                            </select>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
                         <button type="submit" class="btn btn-primary">Simpan</button>
                     </div>
                 </div>
@@ -181,8 +192,6 @@
         </div>
     </div>
 
-    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-

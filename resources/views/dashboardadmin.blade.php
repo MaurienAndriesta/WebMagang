@@ -33,6 +33,10 @@
             font-weight: bold;
             border-radius: 5px;
         }
+        .header .home-button {
+            background-color: transparent;
+            color: black;
+        }
         .header .kpi-button {
             background-color: transparent;
             color: black;
@@ -103,12 +107,13 @@
     <div class="header">
         <img src="img/LOGO.jpg" alt="PLN Icon Plus Logo">
         <div class="nav-buttons">
+        <button class="home-button" onclick="window.location.href='{{ url('/dashboardadmin') }}'">Home</button>
             <select class="master-data-select" onchange="window.location.href=this.value">
                 <option value="#" disabled selected>Master Data</option>
-                <option value="#">Karyawan</option>
-                <option value="#">Penilaian</option>
-                <option value="#">Bidang</option>
-                <option value="#">Sub Bidang</option>
+                <option value="#">Pegawai</option>
+                <option value="{{ url('/md_penilaian') }}">Penilaian</option>
+                <option value="{{ url('/md_bidang') }}">Bidang</option>
+                <option value="{{ url('/md_subbidang') }}">Sub Bidang</option>
                 <option value="#">Pengguna</option>
                 <option value="#">Skala Penilaian</option>
                 <option value="#">Nilai Akhir</option>

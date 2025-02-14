@@ -93,23 +93,25 @@
                     <thead>
                         <tr>
                             <th>No</th>
-                            <th>Nama Bidang</th>
+                            <th>Nama Penilaian</th>
+                            <th>Bobot</th>
                             <th>Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse($bidangs as $bidang)
+                        @forelse($penilaians as $penilaian)
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
-                                <td>{{ $bidang->nama }}</td>
+                                <td>{{ $penilaian->nama }}</td>
+                                <td>{{ $penilaian->bobot }}</td>
                                 <td>
                                     <!-- Edit Button -->
-                                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editModal{{ $bidang->id }}">
+                                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editModal{{ $penilaian->id }}">
                                         Edit
                                     </button>
 
                                     <!-- Delete Form -->
-                                    <form action="{{ route('bidang.destroy', $bidang->id) }}" method="POST" class="d-inline">
+                                    <form action="{{ route('penilaian.destroy', $penilaian->id) }}" method="POST" class="d-inline">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Yakin ingin menghapus data ini?')">Hapus</button>
@@ -118,20 +120,20 @@
                             </tr>
 
                             <!-- Edit Modal -->
-                            <div class="modal fade" id="editModal{{ $bidang->id }}" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+                            <div class="modal fade" id="editModal{{ $penilaian->id }}" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
                                 <div class="modal-dialog">
-                                    <form action="{{ route('bidang.update', $bidang->id) }}" method="POST">
+                                    <form action="{{ route('penilaian.update', $penilaian->id) }}" method="POST">
                                         @csrf
                                         @method('PUT')
                                         <div class="modal-content">
                                             <div class="modal-header">
-                                                <h5 class="modal-title" id="editModalLabel">Edit Bidang</h5>
+                                                <h5 class="modal-title" id="editModalLabel">Edit Penilaian</h5>
                                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                             </div>
                                             <div class="modal-body">
                                                 <div class="mb-3">
-                                                    <label for="nama" class="form-label">Nama Bidang</label>
-                                                    <input type="text" name="nama" class="form-control" value="{{ $bidang->nama }}" required>
+                                                    <label for="nama" class="form-label">Nama Penilaian</label>
+                                                    <input type="text" name="nama" class="form-control" value="{{ $penilaian->nama }}" required>
                                                 </div>
                                             </div>
                                             <div class="modal-footer">
@@ -151,7 +153,7 @@
                 </table>
 
                 <!-- Pagination -->
-                {{ $bidangs->appends(['search' => request('search')])->links() }}
+                {{ $penilaians->appends(['search' => request('search')])->links() }}
             </div>
         </div>
     </div>
@@ -159,7 +161,7 @@
     <!-- Add Modal -->
     <div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
         <div class="modal-dialog">
-            <form action="{{ route('bidang.store') }}" method="POST">
+            <form action="{{ route('penilaian.store') }}" method="POST">
                 @csrf
                 <div class="modal-content">
                     <div class="modal-header">
