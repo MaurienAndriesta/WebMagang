@@ -5,11 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Support\Str;
 
 class MdPegawai extends Model
 {
-    use HasFactory, HasUuids, SoftDeletes;
+    use HasFactory, SoftDeletes;
 
     protected $table = 'md_pegawai';
     protected $primaryKey = 'id';
@@ -17,33 +17,30 @@ class MdPegawai extends Model
     protected $keyType = 'string';
 
     protected $fillable = [
-        'id_atasan',
-        'id_bidang',
-        'id_subbidang',
-        'nama',
-        'jabatan',
-        'masakerja',
-        'status',
-        'created_by',
-        'updated_by',
-        'deleted_by'
+        'id', 'id_atasan', 'id_bidang', 'id_subbidang', 'nama', 'jabatan', 'masakerja', 'status',
+        'created_by', 'updated_by', 'deleted_by'
     ];
 
-    // Relasi ke Atasan
-    public function atasan()
+    public static function boot()
     {
-        return $this->belongsTo(MdPegawai::class, 'id_atasan');
+        parent::boot();
+        static::creating(function ($model) {
+            $model->id = Str::uuid();
+        });
     }
 
-    // Relasi ke Bidang
     public function bidang()
     {
         return $this->belongsTo(MdBidang::class, 'id_bidang');
     }
 
-    // Relasi ke Subbidang
     public function subbidang()
     {
         return $this->belongsTo(MdSubbidang::class, 'id_subbidang');
+    }
+
+    public function atasan()
+    {
+        return $this->belongsTo(MdPegawai::class, 'id_atasan');
     }
 }

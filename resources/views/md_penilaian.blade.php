@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Master Data Bidang</title>
+    <title>Master Data Penilaian</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
@@ -49,13 +49,13 @@
             <a href="{{ url('/dashboardadmin') }}">Home</a>
             <select class="master-data-select">
                 <option>Master Data</option>
-                <option value="#">Karyawan</option>
+                <option value="{{ url('/md_pegawai') }}">Pegawai</option>
                 <option value="{{ url('/md_penilaian') }}">Penilaian</option>
                 <option value="{{ url('/md_bidang') }}">Bidang</option>
-                <option value="#">Sub Bidang</option>
+                <option value="{{ url('/md_subbidang') }}">Sub Bidang</option>
                 <option value="#">Pengguna</option>
-                <option value="#">Skala Penilaian</option>
-                <option value="#">Nilai Akhir</option>
+                <option value="{{ url('/md_skalapenilaian') }}">Skala Penilaian</option>
+                <option value="{{ url('/md_nilaiakhir') }}">Nilai Akhir</option>
             </select>
             <button class="kpi-button" onclick="window.location.href='{{ url('/kpi') }}'">KPI</button>
             <button class="logout-button" onclick="window.location.href='{{ url('/') }}'">Logout</button>
