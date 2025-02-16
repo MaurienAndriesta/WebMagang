@@ -52,7 +52,7 @@
                 <option value="{{ url('/md_penilaian') }}">Penilaian</option>
                 <option value="{{ url('/md_bidang') }}">Bidang</option>
                 <option value="{{ url('/md_subbidang') }}">Sub Bidang</option>
-                <option value="#">Pengguna</option>
+                <option value="{{ url('/md_pengguna') }}">Pengguna</option>
                 <option value="{{ url('/md_skalapenilaian') }}">Skala Penilaian</option>
                 <option value="{{ url('/md_nilaiakhir') }}">Nilai Akhir</option>
             </select>

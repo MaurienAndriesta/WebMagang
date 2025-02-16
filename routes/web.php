@@ -8,6 +8,7 @@ use App\Http\Controllers\MdSubbidangController;
 use App\Http\Controllers\MdNilaiakhirController;
 use App\Http\Controllers\MdSkalapenilaianController;
 use App\Http\Controllers\MdPegawaiController;
+use App\Http\Controllers\MdPenggunaController;
 
 
 
@@ -73,3 +74,11 @@ Route::get('/md_pegawai', [MdPegawaiController::class, 'index'])->name('pegawai.
 Route::post('/md_pegawai', [MdPegawaiController::class, 'store'])->name('pegawai.store'); // Menyimpan pegawai baru
 Route::put('/md_pegawai/{id}', [MdPegawaiController::class, 'update'])->name('pegawai.update'); // Mengupdate pegawai
 Route::delete('/md_pegawai/{id}', [MdPegawaiController::class, 'destroy'])->name('pegawai.destroy'); // Menghapus pegawai
+
+
+Route::get('/md_pengguna', [MdPenggunaController::class, 'index'])->name('pengguna.index'); 
+Route::get('/md_pengguna/create', [MdPenggunaController::class, 'create'])->name('pengguna.create');
+Route::post('/md_pengguna', [MdPenggunaController::class, 'store'])->name('pengguna.store');
+Route::get('/md_pengguna/{id}/edit', [MdPenggunaController::class, 'edit'])->name('pengguna.edit');
+Route::put('/md_pengguna/{id}', [MdPenggunaController::class, 'update'])->name('pengguna.update');
+Route::delete('/md_pengguna/{id}', [MdPenggunaController::class, 'destroy'])->name('pengguna.destroy');
