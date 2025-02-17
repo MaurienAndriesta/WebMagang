@@ -10,6 +10,7 @@ use App\Http\Controllers\MdNilaiakhirController;
 use App\Http\Controllers\MdSkalapenilaianController;
 use App\Http\Controllers\MdPegawaiController;
 use App\Http\Controllers\MdPenggunaController;
+use App\Http\Controllers\TrsKpiController;
 
 // Halaman Utama
 Route::get('/', function () {
@@ -109,3 +110,5 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::get('/pdf', [PdfController::class, 'generatePDF']);
+Route::get('/trs_kpi/create', [TrsKpiController::class, 'create'])->name('trs_kpi.create');
+Route::post('/trs_kpi/store', [TrsKpiController::class, 'store'])->name('trs_kpi.store');
