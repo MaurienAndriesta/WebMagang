@@ -46,23 +46,20 @@
         </div>
         <div class="nav-buttons">
         <a href="{{ url('/dashboardadmin') }}">Home</a>
-            <select class="master-data-select">
+            <select class="master-data-select" aria-label="Master Data Menu">
                 <option>Master Data</option>
-                <option value="{{ url('/md_pegawai') }}">Pegawai</option>
-                <option value="{{ url('/md_penilaian') }}">Penilaian</option>
-                <option value="{{ url('/md_bidang') }}">Bidang</option>
-                <option value="{{ url('/md_subbidang') }}">Sub Bidang</option>
-                <option value="{{ url('/md_pengguna') }}">Pengguna</option>
-                <option value="{{ url('/md_skalapenilaian') }}">Skala Penilaian</option>
-                <option value="{{ url('/md_nilaiakhir') }}">Nilai Akhir</option>
+                <option value="#">Karyawan</option>
+                <option value="#">Penilaian</option>
+                <option value="#">Bidang</option>
+                <option value="#">Sub Bidang</option>
+                <option value="#">Pengguna</option>
+                <option value="#">Skala Penilaian</option>
+                <option value="#">Nilai Akhir</option>
             </select>
             <button class="kpi-button" onclick="window.location.href='{{ url('/kpi') }}'">KPI</button>
-            <button class="logout-button" onclick="window.location.href='{{ url('/dashboard1') }}'">Logout</button>
+            <button class="logout-button" onclick="window.location.href='{{ url('/') }}'">Logout</button>
         </div>
     </div>
-</head>
-</head>
-<body>
 
 <div class="container mt-4">
     <div class="card">
@@ -76,7 +73,7 @@
 
             <div class="d-flex justify-content-between mb-3">
                 <form method="GET" action="{{ route('pengguna.index') }}" class="d-flex">
-                    <input type="text" name="search" class="form-control" placeholder="Cari Pengguna..." value="{{ request('search') }}">
+                    <input type="text" name="search" class="form-control" placeholder="Cari Pengguna..." value="{{ request('search') }}" aria-label="Search for pengguna">
                     <button type="submit" class="btn btn-outline-secondary ms-2">Cari</button>
                 </form>
                 <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addModal">+ Tambah Pengguna</button>
@@ -88,6 +85,7 @@
                         <th>No</th>
                         <th>Nama</th>
                         <th>Username</th>
+                        <th>Role</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
@@ -97,12 +95,13 @@
                             <td>{{ $index + 1 }}</td>
                             <td>{{ $pengguna->pegawai->nama ?? '-' }}</td>
                             <td>{{ $pengguna->username }}</td>
+                            <td>{{ ucfirst($pengguna->role) }}</td>
                             <td>
-                                <button class="btn btn-sm btn-outline-warning" data-bs-toggle="modal" data-bs-target="#editModal{{ $pengguna->id }}">Edit</button>
+                                <button class="btn btn-sm btn-outline-warning" data-bs-toggle="modal" data-bs-target="#editModal{{ $pengguna->id }}" aria-label="Edit pengguna">Edit</button>
                                 <form action="{{ route('pengguna.destroy', $pengguna->id) }}" method="POST" class="d-inline">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Yakin ingin menghapus data ini?')">Hapus</button>
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Yakin ingin menghapus data ini?')" aria-label="Delete pengguna">Hapus</button>
                                 </form>
                             </td>
                         </tr>
@@ -113,7 +112,7 @@
                                 <div class="modal-content">
                                     <div class="modal-header">
                                         <h5 class="modal-title">Edit Pengguna</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close modal"></button>
                                     </div>
                                     <div class="modal-body">
                                         <form action="{{ route('pengguna.update', $pengguna->id) }}" method="POST">
@@ -121,10 +120,17 @@
                                             @method('PUT')
 
                                             <div class="mb-3">
-                                                <label>Username</label>
-                                                <input type="text" class="form-control" name="username" value="{{ $pengguna->username }}" required>
+                                                <label for="username{{ $pengguna->id }}">Username</label>
+                                                <input type="text" class="form-control" name="username" value="{{ $pengguna->username }}" id="username{{ $pengguna->id }}" required>
                                             </div>
 
+                                            <div class="mb-3">
+                                                <label for="role{{ $pengguna->id }}">Role</label>
+                                                <select class="form-control" name="role" id="role{{ $pengguna->id }}">
+                                                    <option value="admin" {{ $pengguna->role == 'admin' ? 'selected' : '' }}>Admin</option>
+                                                    <option value="staff" {{ $pengguna->role == 'staff' ? 'selected' : '' }}>Staff</option>
+                                                </select>
+                                            </div>
 
                                             <button type="submit" class="btn btn-warning">Update</button>
                                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
@@ -151,32 +157,41 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Tambah Pengguna</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close modal"></button>
             </div>
             <div class="modal-body">
                 <form action="{{ route('pengguna.store') }}" method="POST">
                     @csrf
 
                     <div class="mb-3">
-                        <label>Pegawai</label>
-                        <select class="form-control" name="id_pegawai" required>
+                        <label for="id_pegawai">Pegawai</label>
+                        <select class="form-control" name="id_pegawai" id="id_pegawai" required>
                             <option value="">Pilih Pegawai</option>
                             @foreach($pegawaiList as $pegawai)
                                 <option value="{{ $pegawai->id }}">{{ $pegawai->nama }}</option>
                             @endforeach
                         </select>
                     </div>
-
                     <div class="mb-3">
-                        <label>Username</label>
-                        <input type="text" class="form-control" name="username" required>
+                        <label for="username">Username</label>
+                        <input type="text" class="form-control" name="username" id="username" required>
                     </div>
 
                     <div class="mb-3">
-                        <label>Password</label>
-                        <input type="password" class="form-control" name="password" required>
+                        <label for="password">Password</label>
+                        <input type="password" class="form-control" name="password" id="password" required>
                     </div>
 
+                    <div class="mb-3">
+                        <label for="role">Role</label>
+                        <select class="form-control" name="role" id="role" required>
+                            <option value="">Pilih Role</option>
+                            <option value="admin">Admin</option>
+                            <option value="staff">Staff</option>
+                            <option value="manager">Manager</option>
+                            <option value="supervisor">Spv</option>
+                        </select>
+                    </div>
 
                     <button type="submit" class="btn btn-success">Simpan</button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>

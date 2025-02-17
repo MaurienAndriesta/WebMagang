@@ -107,18 +107,8 @@
     <div class="header">
         <img src="img/LOGO.jpg" alt="PLN Icon Plus Logo">
         <div class="nav-buttons">
-        <button class="home-button" onclick="window.location.href='{{ url('/dashboardadmin') }}'">Home</button>
-            <select class="master-data-select" onchange="window.location.href=this.value">
-                <option value="#" disabled selected>Master Data</option>
-                <option value="{{ url('/md_pegawai') }}">Pegawai</option>
-                <option value="{{ url('/md_penilaian') }}">Penilaian</option>
-                <option value="{{ url('/md_bidang') }}">Bidang</option>
-                <option value="{{ url('/md_subbidang') }}">Sub Bidang</option>
-                <option value="{{ url('/md_pengguna') }}">Pengguna</option>
-                <option value="{{ url('/md_skalapenilaian') }}">Skala Penilaian</option>
-                <option value="{{ url('/md_nilaiakhir') }}">Nilai Akhir</option>
-            </select>
-            <button class="kpi-button" onclick="window.location.href='{{ url('/kpi') }}'">KPI</button>
+            <button class="home-button" onclick="window.location.href='{{ url('/dashboardmanager') }}'">Home</button>
+            <button class="kpi-button" onclick="window.location.href='{{ url('/kpimanager') }}'">KPI</button>
             <button class="logout-button" onclick="window.location.href='{{ url('/') }}'">Logout</button>
         </div>
     </div>

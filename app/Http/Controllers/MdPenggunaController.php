@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\MdPengguna;
 use App\Models\MdPegawai;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class MdPenggunaController extends Controller
 {
@@ -29,18 +31,23 @@ class MdPenggunaController extends Controller
 
     public function store(Request $request)
     {
+        
+
         $request->validate([
             'id_pegawai' => 'required',
             'username'   => 'required|unique:md_pengguna,username',
             'password'   => 'required|min:6',
+            'role'       => 'required'
         ]);
 
-        MdPengguna::create([
+        $pengguna = MdPengguna::create([
             'id_pegawai' => $request->id_pegawai,
             'username'   => $request->username,
             'password'   => bcrypt($request->password),
+            'role'       => $request->role
         ]);
 
+        
         return redirect()->route('pengguna.index')->with('success', 'Pengguna berhasil ditambahkan.');
     }
 
@@ -48,11 +55,13 @@ class MdPenggunaController extends Controller
     {
         $request->validate([
             'username' => 'required',
+            'role'     => 'required'
         ]);
 
         $pengguna = MdPengguna::findOrFail($id);
         $pengguna->update([
             'username' => $request->username,
+            'role'     => $request->role
         ]);
 
         return redirect()->route('pengguna.index')->with('success', 'Pengguna berhasil diperbarui.');

@@ -23,7 +23,6 @@
         .header .nav-buttons {
             display: flex;
             gap: 10px;
-            align-items: center;
         }
         .header button {
             color: white;
@@ -33,30 +32,12 @@
             font-weight: bold;
             border-radius: 5px;
         }
-        .header .home-button {
-            background-color: transparent;
-            color: black;
-        }
         .header .kpi-button {
-            background-color: transparent;
-            color: black;
+            background-color: #2A7296;
         }
         .header .logout-button {
             background-color: red;
         }
-        .master-data-select {
-        background-color: transparent;
-        color: black;
-        font-weight: bold; /* Huruf tebal */
-        font-size: 16px; /* Ukuran font lebih besar */
-        padding: 10px 20px;
-        cursor: pointer;
-        border: none;
-    }
-    .master-data-select option {
-        color: black;
-        background-color: white;
-    }
         .main-content {
             padding: 20px;
         }
@@ -107,18 +88,7 @@
     <div class="header">
         <img src="img/LOGO.jpg" alt="PLN Icon Plus Logo">
         <div class="nav-buttons">
-        <button class="home-button" onclick="window.location.href='{{ url('/dashboardadmin') }}'">Home</button>
-            <select class="master-data-select" onchange="window.location.href=this.value">
-                <option value="#" disabled selected>Master Data</option>
-                <option value="{{ url('/md_pegawai') }}">Pegawai</option>
-                <option value="{{ url('/md_penilaian') }}">Penilaian</option>
-                <option value="{{ url('/md_bidang') }}">Bidang</option>
-                <option value="{{ url('/md_subbidang') }}">Sub Bidang</option>
-                <option value="{{ url('/md_pengguna') }}">Pengguna</option>
-                <option value="{{ url('/md_skalapenilaian') }}">Skala Penilaian</option>
-                <option value="{{ url('/md_nilaiakhir') }}">Nilai Akhir</option>
-            </select>
-            <button class="kpi-button" onclick="window.location.href='{{ url('/kpi') }}'">KPI</button>
+            <button class="kpi-button" onclick="window.location.href='{{ url('/kpipegawai') }}'">KPI</button>
             <button class="logout-button" onclick="window.location.href='{{ url('/') }}'">Logout</button>
         </div>
     </div>
@@ -133,24 +103,24 @@
         <h1 style="text-align: left; color: #2A7296; margin-bottom: 30px;">Indikator Penilaian</h1>
         <div class="indicators">
             <div class="indicator">
-            <h3>Pemenuhan Target Kerja</h3>
-                <p>Kemampuan memulai & menggunakan berbagai upaya untuk mencapai sasaran kerja, serta bertindak melebihi apa yang diharapkan untuk menyelesaikan masalah atau meningkatkan hasil kerja tanpa menimbulkan masalah baru</p>
+                <h3>Pemenuhan Target Kerja</h3>
+                <p>Kemampuan memulai & menggunakan berbagai upaya untuk mencapai sasaran kerja...</p>
             </div>
             <div class="indicator">
                 <h3>Kualitas Kerja</h3>
-                <p>Kemampuan unjuk kualitas & mutu yang prima dalam melaksanakan tugas-tugasnya, meliputi: ketepatan, kelengkapan dan kerapian</p>
+                <p>Kemampuan unjuk kualitas & mutu yang prima dalam melaksanakan tugas...</p>
             </div>
             <div class="indicator">
                 <h3>Kepatuhan</h3>
-                <p>Kesadaran untuk menyelesaikan pekerjaan dengan tuntas sesuai tugas & tanggung jawabnya</p>
+                <p>Kesadaran untuk menyelesaikan pekerjaan dengan tuntas sesuai tugas...</p>
             </div>
             <div class="indicator">
                 <h3>Kerjasama/Team Work</h3>
-                <p>Kemampuan berpartisipasi aktif, bekerjasama dengan rekan kerja & menciptakan kolaborasi positif yang mendukung keberhasilan tugas kelompok </p>
+                <p>Kemampuan berpartisipasi aktif, bekerjasama dengan rekan kerja...</p>
             </div>
             <div class="indicator">
                 <h3>Inisiatif</h3>
-                <p>Kemampuan bertindak melebihi yang dibutuhkan atau dituntut dari pekerjaan tanpa menunggu perintah terlebih dahulu</p>
+                <p>Kemampuan bertindak melebihi yang dibutuhkan atau dituntut dari pekerjaan...</p>
             </div>
         </div>
     </div>

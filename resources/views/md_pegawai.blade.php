@@ -56,7 +56,7 @@
                 <option value="{{ url('/md_skalapenilaian') }}">Skala Penilaian</option>
                 <option value="{{ url('/md_nilaiakhir') }}">Nilai Akhir</option>
             </select>
-            <button class="kpi-button" onclick="window.location.href='{{ url('/kpi') }}'">KPI</button>
+            <button class="kpi-button" onclick="window.location.href='{{ url('/kpipegawai') }}'">KPI</button>
             <button class="logout-button" onclick="window.location.href='{{ url('/dashboard1') }}'">Logout</button>
         </div>
     </div>

@@ -36,7 +36,7 @@ class MdPegawai extends Model
 
     public function subbidang()
     {
-        return $this->belongsTo(MdSubbidang::class, 'id_subbidang');
+        return $this->belongsTo(MdSubBidang::class, 'id_subbidang');
     }
 
     public function atasan()

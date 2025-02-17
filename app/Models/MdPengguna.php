@@ -2,17 +2,14 @@
 
 namespace App\Models;
 
-use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Notifications\Notifiable;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
-class MdPengguna extends Authenticatable
+class MdPengguna extends Model
 {
-    use HasFactory, SoftDeletes, Notifiable, HasUuids;
+    use HasFactory, SoftDeletes;
 
     protected $table = 'md_pengguna';
     protected $primaryKey = 'id';
@@ -20,47 +17,33 @@ class MdPengguna extends Authenticatable
     protected $keyType = 'string';
 
     protected $fillable = [
-        'id',
-        'id_pegawai',
-        'username',
-        'password',
-        'created_by',
-        'updated_by',
-        'deleted_by'
+        'id_pegawai', 'username', 'password', 'role', 'created_by', 'updated_at', 'created_at'
     ];
 
     protected $hidden = ['password'];
 
-    protected static function boot()
+    public static function boot()
     {
         parent::boot();
         static::creating(function ($model) {
             if (!$model->id) {
-                $model->id = Str::uuid();
+                $model->id = (string) Str::uuid();
             }
+            $model->created_by = auth()->id() ?? null;
+        });
+
+        static::updating(function ($model) {
+            $model->updated_by = auth()->id() ?? null;
+        });
+
+        static::deleting(function ($model) {
+            $model->deleted_by = auth()->id() ?? null;
+            $model->save();
         });
     }
 
     public function pegawai()
     {
         return $this->belongsTo(MdPegawai::class, 'id_pegawai');
-    }
-
-    /**
-     * Override getAuthIdentifierName untuk autentikasi Laravel
-     */
-    public function getAuthIdentifierName()
-    {
-        return 'id'; 
-    }
-
-    /**
-     * Hash password sebelum disimpan ke database.
-     */
-    public function setPasswordAttribute($value)
-    {
-        if (!empty($value) && Hash::needsRehash($value)) {
-            $this->attributes['password'] = Hash::make($value);
-        }
     }
 }

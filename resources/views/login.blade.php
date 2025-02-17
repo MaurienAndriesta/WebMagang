@@ -23,44 +23,43 @@
             border-radius: 15px;
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
             overflow: hidden;
-            width: 450px;
-            padding: 20px;
+            width: 450px; /* Perbesar lebar */
+            padding: 20px; /* Tambahkan padding */
         }
-
         .banner img {
-            width: 100%;
+            width: 100%; /* Perbesar gambar */
             height: auto;
+        }
+        .banner h2 {
+            color: #2A7296;
+            margin-top: 20px;
+            font-size: 20px; /* Ukuran font lebih besar */
         }
 
         /* Form */
         .login-form {
-            padding: 20px;
+            padding: 20px; /* Perbesar padding form */
         }
-
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 20px; /* Tambahkan jarak antar elemen */
         }
-
         label {
-            font-size: 16px;
+            font-size: 16px; /* Ukuran label lebih besar */
             color: #333333;
         }
-
         input[type="text"],
         input[type="password"] {
             width: 100%;
-            padding: 12px;
+            padding: 12px; /* Tambahkan padding input */
             margin-top: 8px;
             border: 1px solid #ccc;
             border-radius: 8px;
-            font-size: 16px;
+            font-size: 16px; /* Ukuran font input lebih besar */
             outline: none;
         }
-
         .password-wrapper {
             position: relative;
         }
-
         .toggle-password {
             position: absolute;
             right: 12px;
@@ -68,68 +67,58 @@
             transform: translateY(-50%);
             cursor: pointer;
             color: #555555;
-            font-size: 16px;
+            font-size: 16px; /* Ikon lebih besar */
         }
-
         .login-button {
             width: 100%;
-            padding: 12px;
+            padding: 12px; /* Tambahkan padding tombol */
             background-color: #2A7296;
             color: #ffffff;
-            font-size: 18px;
+            font-size: 18px; /* Ukuran font tombol lebih besar */
             font-weight: bold;
             border: none;
             border-radius: 8px;
             cursor: pointer;
         }
-
         .login-button:hover {
-            background-color: #246480;
+            background-color: #2A7296;
         }
-
         .forgot-password {
             display: block;
             text-align: center;
             margin-top: 15px;
             color: #2A7296;
             text-decoration: none;
-            font-size: 14px;
+            font-size: 14px; /* Ukuran font link lebih besar */
         }
-
         .forgot-password:hover {
             text-decoration: underline;
         }
-
-        /* Pesan Error */
-        .error-message {
-            color: red;
-            text-align: center;
-            margin-bottom: 10px;
-            display: none;
-        }
     </style>
-
-    <!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-    <!-- Token CSRF untuk Laravel -->
-    <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
 <body>
     <div class="login-container">
         <div class="banner">
-            <img src="{{ asset('img/loginicon.jpg') }}" alt="PLN Icon Plus Banner">
+            <img src="img/loginicon.jpg" alt="PLN Icon Plus Banner">
         </div>
-        <form id="login-form" class="login-form">
-            <div class="error-message" id="error-message">Username atau password salah!</div>
+        <form action="{{ route('login') }}" method="POST" class="login-form">
+            @csrf
             <div class="form-group">
-                <label for="username">ID Karyawan/Username</label>
+                <label for="username">Username</label>
                 <input type="text" id="username" name="username" placeholder="Masukkan Username" required>
+                <!-- Menampilkan error untuk username -->
+        @error('username')
+            <div class="alert alert-danger">{{ $message }}</div>
+        @enderror
             </div>
             <div class="form-group">
                 <label for="password">Password</label>
                 <div class="password-wrapper">
                     <input type="password" id="password" name="password" placeholder="Masukkan Password" required>
+                    <!-- Menampilkan error untuk password -->
+        @error('password')
+            <div class="alert alert-danger">{{ $message }}</div>
+        @enderror
                     <span class="toggle-password">👁</span>
                 </div>
             </div>
@@ -137,63 +126,19 @@
             <a href="#" class="forgot-password">Forgot password?</a>
         </form>
     </div>
-
     <script>
-    // Toggle password visibility
+    // Script untuk toggle password visibility
     const togglePassword = document.querySelector('.toggle-password');
     const passwordInput = document.querySelector('#password');
 
     togglePassword.addEventListener('click', () => {
+        // Cek apakah password sedang terlihat
         const isPasswordVisible = passwordInput.getAttribute('type') === 'text';
+        // Ubah tipe input
         passwordInput.setAttribute('type', isPasswordVisible ? 'password' : 'text');
-        togglePassword.textContent = isPasswordVisible ? '👁‍🗨' : '👁';
-    });
-
-    // AJAX Login ke Laravel dengan Debugging
-    $(document).ready(function () {
-        $("#login-form").on("submit", function (event) {
-            event.preventDefault(); // Mencegah reload
-
-            var username = $("#username").val();
-            var password = $("#password").val();
-            var csrfToken = $('meta[name="csrf-token"]').attr('content'); // Ambil CSRF token dari meta tag
-
-            // Debugging: Cek data sebelum dikirim
-            console.log("🔍 Mengirim data login...");
-            console.log("Username:", username);
-            console.log("Password:", password);
-            console.log("CSRF Token:", csrfToken);
-
-            $.ajax({
-                url: "{{ route('login.post') }}",
-                type: "POST",
-                headers: {
-                    'X-CSRF-TOKEN': csrfToken // Kirim token CSRF
-                },
-                data: {
-                    username: username,
-                    password: password
-                },
-                success: function (response) {
-                    console.log("✅ Login berhasil!", response); // Debugging: Lihat respons server
-
-                    if (response.redirect) {
-                        console.log("🔀 Redirecting to:", response.redirect);
-                        window.location.href = response.redirect;
-                    }
-                },
-                error: function (xhr, status, error) {
-                    console.error("❌ Login gagal!");
-                    console.error("Status:", status);
-                    console.error("Error:", error);
-                    console.error("Response:", xhr.responseText); // Debugging: Lihat respons server jika error
-
-                    $("#error-message").text("Username atau password salah!").show();
-                }
-            });
-        });
+        // Ubah ikon mata berdasarkan kondisi
+        togglePassword.textContent = isPasswordVisible ? '👁‍🗨' : '👁'; 
     });
 </script>
-
 </body>
 </html>

@@ -29,7 +29,7 @@ class MdPegawaiController extends Controller
     public function create()
     {
         $bidangList = MdBidang::all();
-        $subbidangList = MdSubbidang::all();
+        $subbidangList = MdSubBidang::all();
         $atasanList = MdPegawai::where('jabatan', 'Manager')->get(); // Filter hanya Manager
         return view('pegawai.create', compact('bidangList', 'subbidangList', 'atasanList'));
     }
@@ -65,7 +65,7 @@ class MdPegawaiController extends Controller
     {
         $pegawai = MdPegawai::findOrFail($id);
         $bidangList = MdBidang::all();
-        $subbidangList = MdSubbidang::all();
+        $subbidangList = MdSubBidang::all();
         $atasanList = MdPegawai::where('jabatan', 'Manager')->get(); // Filter hanya Manager
         return view('pegawai.edit', compact('pegawai', 'bidangList', 'subbidangList', 'atasanList'));
     }

@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -9,10 +10,40 @@
             font-family: Arial, sans-serif;
             margin: 20px;
         }
+        .header img {
+            height: 50px;
+        }
         h1 {
             text-align: center;
             color: #333;
         }
+        .header button {
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-weight: bold;
+            border-radius: 5px;
+        }
+        .header .home-button {
+            background-color: transparent;
+            color: black;
+        }
+        .header .kpi-button {
+            background-color: transparent;
+            color: black;
+        }
+        .header .logout-button {
+            background-color: red;
+        }
+        .main-content {
+            padding: 20px;
+        }
+        .banner img {
+            width: 67%;
+            height: auto;
+        }
+        
         table {
             width: 100%;
             border-collapse: collapse;
@@ -53,6 +84,12 @@
         </style>
 </head>
 <body>
+    <div class="header">
+        <img src="img/LOGO.jpg" alt="PLN Icon Plus Logo">
+        <div class="nav-buttons">
+        <button class="home-button" onclick="window.location.href='{{ url('/dashboardspv') }}'">Home</button>
+        <button class="kpi-button" onclick="window.location.href='{{ url('/kpispv') }}'">KPI</button>
+        <button class="logout-button" onclick="window.location.href='{{ url('/') }}'">Logout</button>
 
     <h1>DATA PENILAIAN KARYAWAN</h1>
 

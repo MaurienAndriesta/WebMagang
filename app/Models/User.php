@@ -1,36 +1,19 @@
 <?php
 
+
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Foundation\Auth\User as Authenticatable; // Gunakan Authenticatable
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable;
+    use HasFactory;
 
-    protected $fillable = [
-        'name', 
-        'email',
-        'password',
-    ];
+    protected $table = 'md_pengguna'; // Tabel yang digunakan
+    protected $primaryKey = 'id'; // Primary key
 
-    protected $hidden = [
-        'password',
-    ];
+    protected $fillable = ['id_pegawai', 'username', 'password', 'role']; // Kolom yang bisa diisi
 
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-    ];
-
-    // Pastikan password di-hash sebelum disimpan
-    public function setPasswordAttribute($value)
-    {
-        $this->attributes['password'] = bcrypt($value);
-    }
+    protected $hidden = ['password', 'remember_token']; // Kolom yang disembunyikan
 }
-

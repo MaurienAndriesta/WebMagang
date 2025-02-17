@@ -23,6 +23,7 @@
         .header .nav-buttons {
             display: flex;
             gap: 10px;
+            align-items: center;
         }
         .header button {
             color: white;
@@ -32,12 +33,30 @@
             font-weight: bold;
             border-radius: 5px;
         }
+        .header .home-button {
+            background-color: transparent;
+            color: black;
+        }
         .header .kpi-button {
-            background-color: #2A7296;
+            background-color: transparent;
+            color: black;
         }
         .header .logout-button {
             background-color: red;
         }
+        .master-data-select {
+        background-color: transparent;
+        color: black;
+        font-weight: bold; /* Huruf tebal */
+        font-size: 16px; /* Ukuran font lebih besar */
+        padding: 10px 20px;
+        cursor: pointer;
+        border: none;
+    }
+    .master-data-select option {
+        color: black;
+        background-color: white;
+    }
         .main-content {
             padding: 20px;
         }
@@ -88,8 +107,9 @@
     <div class="header">
         <img src="img/LOGO.jpg" alt="PLN Icon Plus Logo">
         <div class="nav-buttons">
-            <button class="kpi-button" onclick="window.location.href='{{ url('/kpi') }}'">KPI</button>
-            <button class="logout-button" onclick="window.location.href='{{ url('/dashboard1') }}'">Logout</button>
+            <button class="home-button" onclick="window.location.href='{{ url('/dashboardspv') }}'">Home</button>
+            <button class="kpi-button" onclick="window.location.href='{{ url('/kpispv') }}'">KPI</button>
+            <button class="logout-button" onclick="window.location.href='{{ url('/') }}'">Logout</button>
         </div>
     </div>
     <div class="main-content">
@@ -103,24 +123,24 @@
         <h1 style="text-align: left; color: #2A7296; margin-bottom: 30px;">Indikator Penilaian</h1>
         <div class="indicators">
             <div class="indicator">
-                <h3>Pemenuhan Target Kerja</h3>
-                <p>Kemampuan memulai & menggunakan berbagai upaya untuk mencapai sasaran kerja...</p>
+            <h3>Pemenuhan Target Kerja</h3>
+                <p>Kemampuan memulai & menggunakan berbagai upaya untuk mencapai sasaran kerja, serta bertindak melebihi apa yang diharapkan untuk menyelesaikan masalah atau meningkatkan hasil kerja tanpa menimbulkan masalah baru</p>
             </div>
             <div class="indicator">
                 <h3>Kualitas Kerja</h3>
-                <p>Kemampuan unjuk kualitas & mutu yang prima dalam melaksanakan tugas...</p>
+                <p>Kemampuan unjuk kualitas & mutu yang prima dalam melaksanakan tugas-tugasnya, meliputi: ketepatan, kelengkapan dan kerapian</p>
             </div>
             <div class="indicator">
                 <h3>Kepatuhan</h3>
-                <p>Kesadaran untuk menyelesaikan pekerjaan dengan tuntas sesuai tugas...</p>
+                <p>Kesadaran untuk menyelesaikan pekerjaan dengan tuntas sesuai tugas & tanggung jawabnya</p>
             </div>
             <div class="indicator">
                 <h3>Kerjasama/Team Work</h3>
-                <p>Kemampuan berpartisipasi aktif, bekerjasama dengan rekan kerja...</p>
+                <p>Kemampuan berpartisipasi aktif, bekerjasama dengan rekan kerja & menciptakan kolaborasi positif yang mendukung keberhasilan tugas kelompok </p>
             </div>
             <div class="indicator">
                 <h3>Inisiatif</h3>
-                <p>Kemampuan bertindak melebihi yang dibutuhkan atau dituntut dari pekerjaan...</p>
+                <p>Kemampuan bertindak melebihi yang dibutuhkan atau dituntut dari pekerjaan tanpa menunggu perintah terlebih dahulu</p>
             </div>
         </div>
     </div>

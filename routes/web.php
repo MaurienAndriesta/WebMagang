@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\PdfController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LoginController; 
 use App\Http\Controllers\MdBidangController;
@@ -9,9 +10,6 @@ use App\Http\Controllers\MdNilaiakhirController;
 use App\Http\Controllers\MdSkalapenilaianController;
 use App\Http\Controllers\MdPegawaiController;
 use App\Http\Controllers\MdPenggunaController;
-
-
-
 
 // Halaman Utama
 Route::get('/', function () {
@@ -23,9 +21,14 @@ Route::get('/login', function () {
     return view('login');
 })->name('login');
 
-// Halaman Dashboard
-Route::get('/dashboardkaryawan', function () {
-    return view('dashboardkaryawan');
+// Halaman Dashboard Manager
+Route::get('/dashboardmanager', function () {
+    return view('dashboardmanager');
+});
+
+// Halaman Dashboard Pegawai
+Route::get('/dashboardpegawai', function () {
+    return view('dashboardpegawai   ');
 });
 
 // Halaman Dashboard Admin
@@ -33,15 +36,30 @@ Route::get('/dashboardadmin', function () {
     return view('dashboardadmin');
 });
 
-// Halaman KPI
-Route::get('/kpi', function () {
-    return view('kpi');
+// Halaman Dashboard SPV
+Route::get('/dashboardspv', function () {
+    return view('dashboardspv');
+});
+
+// Halaman KPI Pegawai
+Route::get('/kpipegawai', function () {
+    return view('kpipegawai');
+});
+
+// Halaman KPI Manager
+Route::get('/kpimanager', function () {
+    return view('kpimanager');
+});
+
+// Halaman KPI Manager
+Route::get('/kpispv', function () {
+    return view('kpispv');
 });
 
 // Login & Logout
-Route::post('/login', [LoginController::class, 'login'])->name('login.post');
-Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
-//Route::get('/hash-passwords', [LoginController::class, 'hashExistingPasswords']);
+Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login.form');
+Route::post('/login', [LoginController::class, 'login'])->name('login');
+Route::post('/', [LoginController::class, 'logout'])->name('logout');
 
 // Master Data Bidang
 Route::get('/md_bidang', [MdBidangController::class, 'index'])->name('bidang.index');
@@ -82,3 +100,12 @@ Route::post('/md_pengguna', [MdPenggunaController::class, 'store'])->name('pengg
 Route::get('/md_pengguna/{id}/edit', [MdPenggunaController::class, 'edit'])->name('pengguna.edit');
 Route::put('/md_pengguna/{id}', [MdPenggunaController::class, 'update'])->name('pengguna.update');
 Route::delete('/md_pengguna/{id}', [MdPenggunaController::class, 'destroy'])->name('pengguna.destroy');
+
+Route::middleware('auth')->group(function () {
+    Route::get('/dashboardadmin', [LoginController::class, 'admin'])->name('dashboardadmin');
+    Route::get('/dashboardspv', [LoginController::class, 'spv'])->name('dashboardspv');
+    Route::get('/dashboardmanager', [LoginController::class, 'manager'])->name('dashboardmanager');
+    Route::get('/dashboardpegawai', [LoginController::class, 'pegawai'])->name('dashboardpegawai');
+});
+
+Route::get('/pdf', [PdfController::class, 'generatePDF']);
