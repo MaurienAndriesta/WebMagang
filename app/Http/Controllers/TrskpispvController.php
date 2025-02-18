@@ -41,7 +41,7 @@ class TrskpispvController extends Controller
 
         // Simpan data ke dalam database
         TrskpispvModel::create($validated);
-
+        
         // Redirect atau tampilkan pesan sukses
         return redirect()->route('Trskpispv.index')->with('success', 'Data penilaian berhasil disimpan!');
     }

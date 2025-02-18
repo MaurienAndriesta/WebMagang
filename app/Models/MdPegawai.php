@@ -43,4 +43,9 @@ class MdPegawai extends Model
     {
         return $this->belongsTo(MdPegawai::class, 'id_atasan');
     }
+
+    public function latestKpi()
+{
+    return $this->hasOne(Kpi_spv::class, 'id_pegawai');  // Menggunakan 'id_pegawai' sebagai foreign key
+}
 }

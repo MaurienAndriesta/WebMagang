@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Data Pengguna</title>
+    <title>Master Data Pengguna</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <style>
         .header {
             background-color: white;
@@ -30,177 +31,281 @@
             cursor: pointer;
             color: black;
         }
-        .logout-button {
+        .header .logout-button {
             background-color: red;
-            color: white;
-            padding: 8px 15px;
+            color:black;
+            border: none;
+            padding: 5px 15px;
+            cursor: pointer;
+            font-weight: bold;
             border-radius: 5px;
         }
+        .logout-button:hover{
+            background-color: #D80909;
+        }
+        .card-header {
+            background-color: #2A7296;
+            color: white;
+            text-align: center;
+        }
+        .btn-primary {
+            background-color: #2A7296;
+            border-color: #2A7296;
+        }
+        .btn-primary:hover {
+            background-color: #235d7c;
+            border-color: #235d7c;
+        }
+        .card {
+            background-color: #F4F2F2;
+        }
+        .inner-card {
+            background-color: white;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        .inner-card .form-control {
+            min-width: 400px;
+            min-height: 40px;
+        }
+        table{
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        td {
+            text-align: left;
+            padding: 8px;
+            border: 1px solid;
+        }
+        tr:nth-child(even){background-color: white}
+        tr:nth-child(odd){background-color: #CAEDFB}
+        tr:hover {background-color: #b1b3b3;}
+        th {
+            background-color: #2A7296;
+            color: white;
+            text-align: center;
+            padding: 8px;
+            border: 1px solid;
+            border-color: black;
+        }
+        /* Styles for action icons (edit and delete) */
+        .action-icons {
+            visibility: hidden;
+            display: flex;
+            gap: 10px;
+            position: absolute;
+            top: 50%;
+            right: 10px; /* Position to the right */
+            transform: translateY(-50%); /* Only vertical centering needed */
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+         /* Show icons on row hover */
+         tr:hover .action-icons {
+            visibility: visible;
+            opacity: 1; /* Make icons opaque on hover */
+        }
+        /* Style the icon buttons */
+        .action-icons button { /* Style the icon buttons */
+            background: none;  /* Remove default button background */
+            border: none;       /* Remove default button border */
+            padding: 0;         /* Remove default button padding */
+            cursor: pointer;    /* Make it look clickable */
+            font-size: 1.2rem;  /* Adjust icon size as needed */
+            color: #2A7296;       /* Set icon color */
+        }
+        .action-icons .btn-outline-danger {
+            color: red;  /* Override color for delete button */
+        }
+        td {
+            position: relative; /* Necessary for absolute positioning of icons */
+        }
+        .center-text {
+            text-align: center;
+        }
+
     </style>
 </head>
+
 <body>
-    <!-- Header -->
+
     <div class="header">
         <div class="logo">
             <img src="img/LOGO.jpg" alt="PLN Icon Plus">
         </div>
         <div class="nav-buttons">
-        <a href="{{ url('/dashboardadmin') }}">Home</a>
-            <select class="master-data-select" aria-label="Master Data Menu">
-                <option>Master Data</option>
-                <option value="#">Karyawan</option>
-                <option value="#">Penilaian</option>
-                <option value="#">Bidang</option>
-                <option value="#">Sub Bidang</option>
-                <option value="#">Pengguna</option>
-                <option value="#">Skala Penilaian</option>
-                <option value="#">Nilai Akhir</option>
+            <button class="home-button" onclick="window.location.href='{{ url('/dashboardadmin') }}'">Home</button>
+            <select class="master-data-select" onchange="location = this.value;"> <option value="" disabled selected>Master Data</option>
+                <option value="{{ url('/md_pegawai') }}">Pegawai</option>
+                <option value="{{ url('/md_penilaian') }}">Penilaian</option>
+                <option value="{{ url('/md_bidang') }}">Bidang</option>
+                <option value="{{ url('/md_subbidang') }}">Sub Bidang</option>
+                <option value="{{ url('/md_pengguna') }}">Pengguna</option>
+                <option value="{{ url('/md_skalapenilaian') }}">Skala Penilaian</option>
+                <option value="{{ url('/md_nilaiakhir') }}">Nilai Akhir</option>
             </select>
-            <button class="kpi-button" onclick="window.location.href='{{ url('/kpi') }}'">KPI</button>
+            <button class="kpi-button" onclick="window.location.href='{{ url('/kpimanager') }}'">KPI</button>
             <button class="logout-button" onclick="window.location.href='{{ url('/') }}'">Logout</button>
         </div>
     </div>
 
-<div class="container mt-4">
-    <div class="card">
-        <div class="card-header bg-primary text-white">
-            Data Pengguna
-        </div>
-        <div class="card-body">
-            @if(session('success'))
-                <div class="alert alert-success">{{ session('success') }}</div>
-            @endif
-
-            <div class="d-flex justify-content-between mb-3">
-                <form method="GET" action="{{ route('pengguna.index') }}" class="d-flex">
-                    <input type="text" name="search" class="form-control" placeholder="Cari Pengguna..." value="{{ request('search') }}" aria-label="Search for pengguna">
-                    <button type="submit" class="btn btn-outline-secondary ms-2">Cari</button>
-                </form>
-                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addModal">+ Tambah Pengguna</button>
+    <div class="container mt-4">
+        <div class="card">
+            <div class="card-header">
+                Master Data Pengguna
             </div>
+            <div class="card-body">
+                @if(session('success'))
+                    <div class="alert alert-success">{{ session('success') }}</div>
+                @endif
 
-            <table class="table table-striped table-bordered">
-                <thead>
-                    <tr>
-                        <th>No</th>
-                        <th>Nama</th>
-                        <th>Username</th>
-                        <th>Role</th>
-                        <th>Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($penggunaList as $index => $pengguna)
+                <div class="inner-card">  <!-- Inner card added here -->
+                    <div class="d-flex justify-content-between mb-3">
+                        <form method="GET" action="{{ route('pengguna.index') }}" class="d-flex">
+                            <input type="text" name="search" class="form-control" placeholder="Cari..." value="{{ request('search') }}">
+                            <button type="submit" class="btn btn-outline-secondary ms-2"><i class="bi bi-search"></i></button>
+                        </form>
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addModal">
+                            + Tambah
+                        </button>
+                    </div>
+                </div>  <!-- End of inner card -->
+
+                <!-- Table -->
+                <table>
+                    <thead>
                         <tr>
-                            <td>{{ $index + 1 }}</td>
-                            <td>{{ $pengguna->pegawai->nama ?? '-' }}</td>
-                            <td>{{ $pengguna->username }}</td>
-                            <td>{{ ucfirst($pengguna->role) }}</td>
-                            <td>
-                                <button class="btn btn-sm btn-outline-warning" data-bs-toggle="modal" data-bs-target="#editModal{{ $pengguna->id }}" aria-label="Edit pengguna">Edit</button>
+                            <th>No</th>
+                            <th>Nama</th>
+                            <th>Username</th>
+                            <th>Role</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @forelse($penggunaList as $pengguna)
+                    <tr>
+                        <td class="center-text">{{ $loop->iteration }}</td>
+                        <td>{{ $pengguna->pegawai->nama ?? '-' }}</td>
+                        <td>{{ $pengguna->username }}</td>
+                        <td>
+                            {{ ucfirst($pengguna->role) }}
+                            <div class="action-icons">
+                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editModal{{ $pengguna->id }}">
+                                    <i class="bi bi-pencil-square"></i>
+                                </button>
                                 <form action="{{ route('pengguna.destroy', $pengguna->id) }}" method="POST" class="d-inline">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Yakin ingin menghapus data ini?')" aria-label="Delete pengguna">Hapus</button>
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Yakin ingin menghapus data ini?')">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
                                 </form>
-                            </td>
-                        </tr>
+                            </div>
+                        </td>
+                    </tr>
 
-                        <!-- Modal Edit -->
-                        <div class="modal fade" id="editModal{{ $pengguna->id }}" tabindex="-1">
-                            <div class="modal-dialog">
+                    <div class="modal fade" id="editModal{{ $pengguna->id }}" tabindex="-1"
+                        aria-labelledby="editModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <form action="{{ route('pengguna.update', $pengguna->id) }}" method="POST">
+                                @csrf
+                                @method('PUT')
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h5 class="modal-title">Edit Pengguna</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close modal"></button>
+                                        <h5 class="modal-title" id="editModalLabel">Edit Pengguna</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                            aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body">
-                                        <form action="{{ route('pengguna.update', $pengguna->id) }}" method="POST">
-                                            @csrf
-                                            @method('PUT')
+                                        <div class="mb-3">
+                                            <label for="username{{ $pengguna->id }}">Username</label>
+                                            <input type="text" class="form-control" name="username" value="{{ $pengguna->username }}" id="username{{ $pengguna->id }}" required>
+                                        </div>
 
-                                            <div class="mb-3">
-                                                <label for="username{{ $pengguna->id }}">Username</label>
-                                                <input type="text" class="form-control" name="username" value="{{ $pengguna->username }}" id="username{{ $pengguna->id }}" required>
-                                            </div>
-
-                                            <div class="mb-3">
-                                                <label for="role{{ $pengguna->id }}">Role</label>
-                                                <select class="form-control" name="role" id="role{{ $pengguna->id }}">
-                                                    <option value="admin" {{ $pengguna->role == 'admin' ? 'selected' : '' }}>Admin</option>
-                                                    <option value="staff" {{ $pengguna->role == 'staff' ? 'selected' : '' }}>Staff</option>
-                                                </select>
-                                            </div>
-
-                                            <button type="submit" class="btn btn-warning">Update</button>
-                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                                        </form>
+                                        <div class="mb-3">
+                                            <label for="role{{ $pengguna->id }}">Role</label>
+                                            <select class="form-control" name="role" id="role{{ $pengguna->id }}">
+                                                <option value="admin" {{ $pengguna->role == 'admin' ? 'selected' : '' }}>Admin</option>
+                                                <option value="staff" {{ $pengguna->role == 'staff' ? 'selected' : '' }}>Staff</option>
+                                                <option value="manager" {{ $pengguna->role == 'manager' ? 'selected' : '' }}>Manager</option>
+                                                <option value="supervisor" {{ $pengguna->role == 'supervisor' ? 'selected' : '' }}>Spv</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary"
+                                            data-bs-dismiss="modal">Batal</button>
+                                        <button type="submit" class="btn btn-primary">Simpan</button>
                                     </div>
                                 </div>
-                            </div>
+                            </form>
                         </div>
-
+                    </div>
                     @empty
-                        <tr>
-                            <td colspan="5" class="text-center">Data tidak ditemukan</td>
-                        </tr>
+                    <tr>
+                        <td colspan="5" class="text-center">Data tidak ditemukan</td>
+                    </tr>
                     @endforelse
                 </tbody>
             </table>
-        </div>
-    </div>
-</div>
 
-<!-- Modal Tambah -->
-<div class="modal fade" id="addModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Tambah Pengguna</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close modal"></button>
-            </div>
-            <div class="modal-body">
-                <form action="{{ route('pengguna.store') }}" method="POST">
-                    @csrf
-
-                    <div class="mb-3">
-                        <label for="id_pegawai">Pegawai</label>
-                        <select class="form-control" name="id_pegawai" id="id_pegawai" required>
-                            <option value="">Pilih Pegawai</option>
-                            @foreach($pegawaiList as $pegawai)
-                                <option value="{{ $pegawai->id }}">{{ $pegawai->nama }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="username">Username</label>
-                        <input type="text" class="form-control" name="username" id="username" required>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="password">Password</label>
-                        <input type="password" class="form-control" name="password" id="password" required>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="role">Role</label>
-                        <select class="form-control" name="role" id="role" required>
-                            <option value="">Pilih Role</option>
-                            <option value="admin">Admin</option>
-                            <option value="staff">Staff</option>
-                            <option value="manager">Manager</option>
-                            <option value="supervisor">Spv</option>
-                        </select>
-                    </div>
-
-                    <button type="submit" class="btn btn-success">Simpan</button>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                </form>
             </div>
         </div>
     </div>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Add Modal -->
+    <div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <form action="{{ route('pengguna.store') }}" method="POST">
+                @csrf
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addModalLabel">Tambah Pengguna</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="id_pegawai">Pegawai</label>
+                            <select class="form-control" name="id_pegawai" id="id_pegawai" required>
+                                <option value="">Pilih Pegawai</option>
+                                @foreach($pegawaiList as $pegawai)
+                                    <option value="{{ $pegawai->id }}">{{ $pegawai->nama }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="username">Username</label>
+                            <input type="text" class="form-control" name="username" id="username" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="password">Password</label>
+                            <input type="password" class="form-control" name="password" id="password" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="role">Role</label>
+                            <select class="form-control" name="role" id="role" required>
+                                <option value="">Pilih Role</option>
+                                <option value="admin">Admin</option>
+                                <option value="staff">Staff</option>
+                                <option value="manager">Manager</option>
+                                <option value="supervisor">Spv</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary">Simpan</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 
-class MdNilaiAkhirController extends Controller
+class MdNilaiakhirController extends Controller
 {
     // Menampilkan daftar nilai akhir
     public function index(Request $request)
@@ -38,19 +38,19 @@ class MdNilaiAkhirController extends Controller
     $nilaiAkhir->grade = $request->input('grade');
     $nilaiAkhir->created_by = Auth::check() ? Auth::id() : null;
     $nilaiAkhir->save();
-    
+
 
     return redirect()->route('nilai-akhir.index')->with('success', 'Nilai Akhir berhasil ditambahkan');
 }
 
-    
+
 
     // Mengupdate data
     public function update(Request $request, $id)
     {
         $request->validate([
-            'nilai_awal' => 'required|numeric|min:0|max:100',
-            'nilai_akhir' => 'required|numeric|min:0|max:100',
+            'nilai_awal' => 'required|numeric|min:1',
+            'nilai_akhir' => 'required|numeric|min:1',
             'grade' => 'required|string|max:2',
         ]);
 

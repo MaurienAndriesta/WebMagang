@@ -25,6 +25,23 @@ class MdPegawaiController extends Controller
 
         return view('md_pegawai', compact('pegawaiList', 'bidangList', 'subbidangList', 'atasanList'));
     }
+    
+    public function kpi(Request $request)
+{
+    $search = $request->input('search');
+    $pegawaiList = MdPegawai::with(['latestKpi', 'bidang', 'subbidang']) // Memuat relasi yang diperlukan
+        ->when($search, function ($query, $search) {
+            return $query->where('nama', 'like', "%{$search}%");
+        })
+        ->orderBy('created_at', 'asc')
+        ->paginate(10);
+
+    $bidangList = MdBidang::all();
+    $subbidangList = MdSubBidang::all();
+    $atasanList = MdPegawai::where('jabatan', 'Manager')->get(); // Filter hanya Manager
+    
+    return view('Kpi_spv', compact('pegawaiList', 'bidangList', 'subbidangList', 'atasanList'));
+}
 
     public function create()
     {

@@ -12,7 +12,6 @@ use App\Http\Controllers\MdPegawaiController;
 use App\Http\Controllers\MdPenggunaController;
 use App\Http\Controllers\TrskpispvController;
 use App\Http\Controllers\TrskpimanagerController;
-use App\Http\Controllers\HalkpiController;
 
 // Halaman Utama
 Route::get('/', function () {
@@ -115,6 +114,9 @@ Route::post('/md_pegawai', [MdPegawaiController::class, 'store'])->name('pegawai
 Route::put('/md_pegawai/{id}', [MdPegawaiController::class, 'update'])->name('pegawai.update'); // Mengupdate pegawai
 Route::delete('/md_pegawai/{id}', [MdPegawaiController::class, 'destroy'])->name('pegawai.destroy'); // Menghapus pegawai
 
+// Tambahkan route untuk KPI
+Route::get('/Kpi_spv', [MdPegawaiController::class, 'kpi'])->name('kpi.index'); // Menampilkan daftar KPI
+
 // Master Data Pengguna
 Route::get('/md_pengguna', [MdPenggunaController::class, 'index'])->name('pengguna.index'); 
 Route::get('/md_pengguna/create', [MdPenggunaController::class, 'create'])->name('pengguna.create');
@@ -141,4 +143,3 @@ Route::post('/Trskpispv', [TrskpispvController::class, 'store'])->name('Trskpisp
 Route::get('/Trskpimanager', [TrskpimanagerController::class, 'index'])->name('Trskpimanager.index');
 Route::post('/Trskpimanager', [TrskpimanagerController::class, 'store'])->name('Trskpimanager.store');
 
-Route::get('/Halkpi-evaluation', [HalkpiController::class, 'index'])->name('Halkpi.evaluation');
