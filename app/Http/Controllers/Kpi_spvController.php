@@ -2,18 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Kpi_spv;
 use App\Models\TrsKpi;
-use App\Models\TrsKpiItem;
+use App\Models\Trskpiitem;
 use App\Models\MdNilaiAkhir;
+use App\Models\Trskpispv;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class HalkpiController extends Controller
+class Kpi_spvController extends Controller
 {
     public function index()
     {
-        $kpis = TrsKpi::orderBy('created_at', 'desc')->paginate(10);
-        return view('Trskpispv', compact('kpis'));
+        $kpis = Trskpispv::orderBy('created_at', 'desc')->paginate(10);
+        return view('trs_kpispv', compact('kpis'));
     }
 
     private function tentukanGrade($nilai)
@@ -37,7 +39,7 @@ class HalkpiController extends Controller
             'items.*.nilai_spv' => 'required|numeric|min:0|max:100',
         ]);
 
-        $kpi = new TrsKpi();
+        $kpi = new Trskpispv();
         $kpi->id_pegawai = $request->id_pegawai;
         $kpi->id_penilai = $request->id_penilai;
         $kpi->tahun = $request->tahun;
@@ -47,7 +49,7 @@ class HalkpiController extends Controller
         $kpi->save();
 
         foreach ($request->items as $item) {
-            TrsKpiItem::create([
+            TrskpiItem::create([
                 'id_kpi' => $kpi->id,
                 'id_penilaian' => $item['id_penilaian'],
                 'nilai_spv' => $item['nilai_spv'],
@@ -60,7 +62,7 @@ class HalkpiController extends Controller
 
     public function submitToManager($id)
     {
-        $kpi = TrsKpi::findOrFail($id);
+        $kpi = Trskpispv::findOrFail($id);
         $kpi->status_kpi = 'review_manager';
         $kpi->save();
 
@@ -75,10 +77,10 @@ class HalkpiController extends Controller
             'items.*.nilai_manager' => 'required|numeric|min:0|max:100',
         ]);
 
-        $kpi = TrsKpi::findOrFail($id);
+        $kpi = Trskpispv::findOrFail($id);
 
         foreach ($request->items as $item) {
-            $kpiItem = TrsKpiItem::findOrFail($item['id']);
+            $kpiItem = TrskpiItem::findOrFail($item['id']);
             $kpiItem->nilai_manager = $item['nilai_manager'];
             $kpiItem->updated_by = Auth::id();
             $kpiItem->save();

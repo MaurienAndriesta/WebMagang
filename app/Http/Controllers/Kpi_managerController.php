@@ -6,6 +6,7 @@ use App\Models\Kpi_manager;
 use App\Models\TrsKpi;
 use App\Models\Trskpiitem;
 use App\Models\MdNilaiAkhir;
+use App\Models\Trskpimanager;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -13,7 +14,7 @@ class Kpi_managerController extends Controller
 {
     public function index()
     {
-        $kpis = Trskpi::orderBy('created_at', 'desc')->paginate(10);
+        $kpis = Trskpimanager::orderBy('created_at', 'desc')->paginate(10);
         return view('trs_kpi', compact('kpis'));
     }
 
@@ -38,7 +39,7 @@ class Kpi_managerController extends Controller
             'items.*.nilai_spv' => 'required|numeric|min:0|max:100',
         ]);
 
-        $kpi = new Trskpi();
+        $kpi = new Trskpimanager();
         $kpi->id_pegawai = $request->id_pegawai;
         $kpi->id_penilai = $request->id_penilai;
         $kpi->tahun = $request->tahun;
@@ -61,7 +62,7 @@ class Kpi_managerController extends Controller
 
     public function submitToManager($id)
     {
-        $kpi = TrsKpi::findOrFail($id);
+        $kpi = Trskpimanager::findOrFail($id);
         $kpi->status_kpi = 'review_manager';
         $kpi->save();
 
@@ -76,7 +77,7 @@ class Kpi_managerController extends Controller
             'items.*.nilai_manager' => 'required|numeric|min:0|max:100',
         ]);
 
-        $kpi = Trskpi::findOrFail($id);
+        $kpi = Trskpimanager::findOrFail($id);
 
         foreach ($request->items as $item) {
             $kpiItem = TrskpiItem::findOrFail($item['id']);

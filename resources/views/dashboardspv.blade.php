@@ -122,7 +122,7 @@
         </div>
         <div class="nav-buttons">
             <button class="home-button" onclick="window.location.href='{{ url('/dashboardspv') }}'">Home</button>
-            <button class="kpi-button" onclick="window.location.href='{{ url('/Kpi_manager') }}'">KPI</button>
+            <button class="kpi-button" onclick="window.location.href='{{ url('/Kpi_spv') }}'">KPI</button>
             <button class="logout-button" onclick="window.location.href='{{ url('/') }}'">Logout</button>
         </div>
     </div>

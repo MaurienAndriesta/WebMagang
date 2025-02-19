@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
-class TrsKpi extends Model
+class Kpi_spv extends Model
 {
     use HasFactory, SoftDeletes;
 

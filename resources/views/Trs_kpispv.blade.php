@@ -69,33 +69,28 @@
                                 <label class="col-md-3">Nama</label>
                                 <div class="col-md-1">:</div>
                                 <div class="col-md-8">
-                                    <input type="text" class="form-control" name="nama" value="{{ old('nama', $pegawai->nama) }}" readonly>
-    
+                                    <input type="text" class="form-control" name="nama" >
                                 </div>
                             </div>
                             <div class="row mb-2">
                                 <label class="col-md-3">Jabatan</label>
                                 <div class="col-md-1">:</div>
                                 <div class="col-md-8">
-                                    <input type="text" class="form-control" name="jabatan" value="{{ old('jabatan', $pegawai->jabatan) }}" readonly>
-
+                                    <input type="text" class="form-control" name="jabatan" >
                                 </div>
                             </div>
                             <div class="row mb-2">
                                 <label class="col-md-3">Bidang</label>
                                 <div class="col-md-1">:</div>
                                 <div class="col-md-8">
-                                <input type="text" class="form-control" name="bidang" value="{{ old('id_bidang', $pegawai->bidang->nama) }}" readonly>
-
-
+                                    <input type="text" class="form-control" name="bidang" >
                                 </div>
                             </div>
                             <div class="row mb-2">
                                 <label class="col-md-3">Masa kerja</label>
                                 <div class="col-md-1">:</div>
                                 <div class="col-md-8">
-                                    <input type="text" class="form-control" name="masakerja" value= "{{ old('masakerja', $pegawai->masakerja) }}" readonly>
-
+                                    <input type="text" class="form-control" name="masakerja" >
                                 </div>
                             </div>
                         </div>
@@ -106,8 +101,7 @@
                                 <label class="col-md-3">Nama (Atasan Langsung)</label>
                                 <div class="col-md-1">:</div>
                                 <div class="col-md-8">
-                                    <input type="text" class="form-control" name="nama_penilai" value="{{ old('nama', $atasan) }}" readonly>
-
+                                    <input type="text" class="form-control" name="nama_penilai">
                                 </div>
                             </div>
                             <div class="row mb-2">
@@ -115,7 +109,7 @@
                                 <div class="col-md-1">:</div>
                                 <div class="col-md-8">
                                     <div class="input-group">
-                                        <input type="text" class="form-control" name="periode_penilaian" value="{{ old('semester', $atasan) }}">
+                                        <input type="text" class="form-control" name="periode_penilaian">
                                         <button class="btn btn-outline-secondary" type="button">
                                             <i class="fas fa-calendar"></i>
                                         </button>
@@ -164,7 +158,7 @@
                                     <td>Pemenuhan Target Kerja</td>
                                     <td class="text-center">20</td>
                                     <td>
-                                        <input type="number" class="form-control form-control-sm" name="items[0][nilai_spv]" min="1" max="5">
+                                        <input type="number" class="form-control form-control-sm" name="items[0][nilai_spv]" min="1" max="5" >
                                     </td>
                                     <td>
                                         <input type="number" class="form-control form-control-sm" name="items[0][nilai_manager]" min="1" max="5" readonly>
@@ -177,10 +171,10 @@
                                     <td>Kualitas Kerja</td>
                                     <td class="text-center">20</td>
                                     <td>
-                                        <input type="number" class="form-control form-control-sm" name="items[1][nilai_spv]" min="1" max="5">
+                                        <input type="number" class="form-control form-control-sm" name="items[1][nilai_spv]" min="1" max="5" >
                                     </td>
                                     <td>
-                                        <input type="number" class="form-control form-control-sm" name="items[1][nilai_manager]" min="1" max="5" readonly>
+                                        <input type="number" class="form-control form-control-sm" name="items[1][nilai_manager]" min="1" max="5"readonly>
                                     </td>
                                     <td class="text-center"></td>
                                     <td></td>
@@ -190,10 +184,10 @@
                                     <td>Kepatuhan</td>
                                     <td class="text-center">20</td>
                                     <td>
-                                        <input type="number" class="form-control form-control-sm" name="items[2][nilai_spv]" min="1" max="5">
+                                        <input type="number" class="form-control form-control-sm" name="items[2][nilai_spv]" min="1" max="5" >
                                     </td>
                                     <td>
-                                        <input type="number" class="form-control form-control-sm" name="items[2][nilai_manager]" min="1" max="5" readonly>
+                                        <input type="number" class="form-control form-control-sm" name="items[2][nilai_manager]" min="1" max="5"readonly>
                                     </td>
                                     <td class="text-center"></td>
                                     <td></td>
@@ -203,10 +197,10 @@
                                     <td>Kerjasama/ Team Work</td>
                                     <td class="text-center">20</td>
                                     <td>
-                                        <input type="number" class="form-control form-control-sm" name="items[3][nilai_spv]" min="1" max="5">
+                                        <input type="number" class="form-control form-control-sm" name="items[3][nilai_spv]" min="1" max="5" >
                                     </td>
                                     <td>
-                                        <input type="number" class="form-control form-control-sm" name="items[3][nilai_manager]" min="1" max="5" readonly>
+                                        <input type="number" class="form-control form-control-sm" name="items[3][nilai_manager]" min="1" max="5"readonly>
                                     </td>
                                     <td class="text-center"></td>
                                     <td></td>
@@ -216,10 +210,10 @@
                                     <td>Inisiatif</td>
                                     <td class="text-center">20</td>
                                     <td>
-                                        <input type="number" class="form-control form-control-sm" name="items[4][nilai_spv]" min="1" max="5">
+                                        <input type="number" class="form-control form-control-sm" name="items[4][nilai_spv]" min="1" max="5" >
                                     </td>
                                     <td>
-                                        <input type="number" class="form-control form-control-sm" name="items[4][nilai_manager]" min="1" max="5" readonly>
+                                        <input type="number" class="form-control form-control-sm" name="items[4][nilai_manager]" min="1" max="5"readonly>
                                     </td>
                                     <td class="text-center"></td>
                                     <td></td>

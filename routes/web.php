@@ -10,7 +10,7 @@ use App\Http\Controllers\MdNilaiakhirController;
 use App\Http\Controllers\MdSkalapenilaianController;
 use App\Http\Controllers\MdPegawaiController;
 use App\Http\Controllers\MdPenggunaController;
-use App\Http\Controllers\TrskpiController;
+use App\Http\Controllers\TrskpispvController;
 use App\Http\Controllers\TrskpimanagerController;
 
 // Halaman Utama
@@ -63,15 +63,11 @@ Route::get('/kpiadmin', function () {
     return view('kpiadmin');
 });
 
-// Halaman TRANSAKSI KPI SPV MANAGER
-Route::get('/Trskpi', function () {
-    return view('Trskpi');
+// Halaman TRANSAKSI KPI SPV 
+Route::get('/trs_kpispv', function () {
+    return view('trs_kpispv');
 });
 
-// Halaman KPI UMUM
-Route::get('/Halkpi', function () {
-    return view('Halkpi');
-});
 
 // Halaman TRANSAKSI KPI MANAGER
 Route::get('/trs_kpimanager', function () {
@@ -122,7 +118,7 @@ Route::delete('/md_pegawai/{id}', [MdPegawaiController::class, 'destroy'])->name
 
 // Tambahkan route untuk KPI SPV
 Route::get('/Halkpi', [MdPegawaiController::class, 'kpi'])->name('kpi.index'); // Menampilkan daftar KPI
-Route::get('/Trskpi/{id}', [MdPegawaiController::class, 'showFormPenilaian'])->name('Trskpi');
+Route::get('/Trskpispv/{id}', [MdPegawaiController::class, 'showFormPenilaian'])->name('Trskpi');
 
 // Tambahkan route untuk KPI MANAGER
 Route::get('/Kpi_manager', [MdPegawaiController::class, 'kpi'])->name('kpi.index'); // Menampilkan daftar KPI
@@ -147,10 +143,10 @@ Route::middleware('auth')->group(function () {
 Route::get('/pdf', [PdfController::class, 'generatePDF']);
 
 
-Route::get('/Trskpi', [TrskpiController::class, 'index'])->name('kpi.index');
-Route::post('/Trskpi/store', [TrskpiController::class, 'store'])->name('kpi.store');
-Route::post('/Trskpi/{id}/submit', [TrskpiController::class, 'submitToManager'])->name('kpi.submit');
-Route::post('/Trskpi/{id}/manager-evaluate', [TrskpiController::class, 'managerEvaluate'])->name('kpi.evaluate');
+Route::get('/Trs_kpispv', [TrskpispvController::class, 'index'])->name('kpi.index');
+Route::post('/Trs_kpispv/store', [TrskpispvController::class, 'store'])->name('kpi.store');
+Route::post('/Trs_kpispv/{id}/submit', [TrskpispvController::class, 'submitToManager'])->name('kpi.submit');
+Route::post('/Trs_kpispv/{id}/manager-evaluate', [TrskpispvController::class, 'managerEvaluate'])->name('kpi.evaluate');
 
 Route::get('/trs_kpimanager/{id}', [TrskpimanagerController::class, 'index'])->name('trs_kpimanager.index');
 //Route::get('/trs_kpimanager', [TrskpimanagerController::class, 'index'])->name('trs_kpimanager.index');

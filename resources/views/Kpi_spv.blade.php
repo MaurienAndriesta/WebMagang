@@ -58,7 +58,7 @@
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav ms-auto">
                         <li class="nav-item">
-                            <a class="nav-link" href="/">Home</a>
+                        <a class="nav-link" href="{{ url('/dashboardspv') }}">Home</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="kpi.php">KPI</a>
@@ -130,7 +130,7 @@
                                             @endif
                                         </td>
                                         <td class="text-center">
-                                            <a href="{{ url('/Trskpispv' . $pegawai->id) }}" class="btn btn-sm btn-warning">
+                                            <a href="{{ url('/trs_kpimanager') }}" class="btn btn-sm btn-warning">
                                                 ✏
                                             </a>
                                         </td>
