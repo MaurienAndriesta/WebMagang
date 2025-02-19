@@ -46,6 +46,6 @@ class MdPegawai extends Model
 
     public function latestKpi()
 {
-    return $this->hasOne(Kpi_spv::class, 'id_pegawai');  // Menggunakan 'id_pegawai' sebagai foreign key
+    return $this->hasOne(Trskpi::class, 'id_pegawai');  // Menggunakan 'id_pegawai' sebagai foreign key
 }
 }

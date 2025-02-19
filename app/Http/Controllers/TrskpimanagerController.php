@@ -7,11 +7,28 @@ use Illuminate\Http\Request;
 
 class TrskpimanagerController extends Controller
 {
-    // Tampilkan form
+    // Tampilkan daftar pegawai
     public function index()
-    {
-        return view('Trskpimanager.index');
+{
+    try {
+        $pegawaiList = Trskpimanager::all();
+
+        if (!$pegawaiList) {
+            throw new \Exception("Data pegawai tidak ditemukan!");
+        }
+
+        return view('trs_manager', compact('pegawaiList'));
+    } catch (\Exception $e) {
+        return response()->view('errors.debug', ['message' => $e->getMessage()], 500);
     }
+}
+
+    // Tampilkan detail pegawai berdasarkan ID
+    // public function show($id)
+    // {
+    //     $pegawaiList = Trskpimanager::findOrFail($id);
+    //     return view('trs_kpimanager', compact('pegawaiList'));
+    // }
 
     // Proses penyimpanan penilaian
     public function store(Request $request)
@@ -41,6 +58,6 @@ class TrskpimanagerController extends Controller
 
         Trskpimanager::create($data);
 
-        return redirect()->route('Trskpimanager.index')->with('success', 'Data berhasil disimpan');
+        return redirect()->route('trs_kpimanager.index')->with('success', 'Data berhasil disimpan');
     }
 }

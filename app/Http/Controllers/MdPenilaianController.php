@@ -11,14 +11,14 @@ class MdPenilaianController extends Controller
     public function index(Request $request)
     {
         $query = MdPenilaian::query();
-        
+
         // Handle search
         if ($request->has('search')) {
             $query->where('nama', 'like', '%' . $request->search . '%');
         }
-        
+
         $penilaians = $query->orderBy('created_at', 'desc')->paginate(10);
-        
+
         return view('md_penilaian', compact('penilaians'));
     }
 
@@ -26,6 +26,8 @@ class MdPenilaianController extends Controller
     {
         $request->validate([
             'nama' => 'required|string|max:255',
+            'bobot' => 'required|numeric',
+            'kategori' => 'required|in:Kriteria Penilaian,Penilaian Kedisiplinan'
         ]);
 
         $penilaian = new MdPenilaian();
@@ -43,8 +45,8 @@ class MdPenilaianController extends Controller
     {
         $request->validate([
             'nama' => 'required|string|max:255',
-            'bobot' => 'required|decimal|min:0|max:100',
-            'kategori' => 'required|string|max:255',
+            'bobot' => 'required|numeric',
+            'kategori' => 'required|in:Kriteria Penilaian,Penilaian Kedisiplinan'
         ]);
 
         $penilaian = MdPenilaian::findOrFail($id);

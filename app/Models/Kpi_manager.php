@@ -7,17 +7,18 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
-class TrsKpiItem extends Model
+class Kpi_manager extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $table = 'trs_kpi_item';
+    protected $table = 'trs_kpi';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'string';
 
     protected $fillable = [
-        'id_kpi', 'id_penilaian', 'nilai_spv', 'nilai_manager', 'catatan',
+        'id_pegawai', 'id_penilai', 'nilai_akhir', 'grade', 
+        'kelebihan', 'improvement', 'tahun', 'semester', 'status_kpi', 
         'created_by', 'updated_by', 'deleted_by'
     ];
 
@@ -29,8 +30,10 @@ class TrsKpiItem extends Model
         });
     }
 
-    public function kpi()
+    // Relasi ke Pegawai
+    public function pegawai()
     {
-        return $this->belongsTo(TrsKpi::class, 'id_kpi');
+        return $this->belongsTo(MdPegawai::class, 'id_pegawai');
     }
+    
 }

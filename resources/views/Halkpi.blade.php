@@ -130,7 +130,7 @@
                                             @endif
                                         </td>
                                         <td class="text-center">
-                                            <a href="{{ url('/penilaian_spv') }}" class="btn btn-sm btn-warning">
+                                            <a href="{{ url('/Trskpispv' . $pegawai->id) }}" class="btn btn-sm btn-warning">
                                                 ✏
                                             </a>
                                         </td>

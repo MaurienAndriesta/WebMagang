@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use PDF;
+use Pdf;
 
 class PdfController extends Controller
 {
@@ -27,7 +27,7 @@ class PdfController extends Controller
             'improvements' => 'Need to improve communication skills'
         ];
 
-        $pdf = PDF::loadView('Pdf', $data);
+        $pdf = Pdf::loadView('Pdf', $data);
         
         // Optional: Set paper size and orientation
         $pdf->setPaper('A4', 'portrait');

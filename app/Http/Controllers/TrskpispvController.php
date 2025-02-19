@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\TrsKpi;
 use Illuminate\Http\Request;
 use App\Models\TrskpispvModel;
 
@@ -40,7 +41,7 @@ class TrskpispvController extends Controller
         ]);
 
         // Simpan data ke dalam database
-        TrskpispvModel::create($validated);
+        TrsKpi::create($validated);
         
         // Redirect atau tampilkan pesan sukses
         return redirect()->route('Trskpispv.index')->with('success', 'Data penilaian berhasil disimpan!');

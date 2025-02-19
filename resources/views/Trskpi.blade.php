@@ -69,28 +69,33 @@
                                 <label class="col-md-3">Nama</label>
                                 <div class="col-md-1">:</div>
                                 <div class="col-md-8">
-                                    <input type="text" class="form-control" name="nama" >
+                                    <input type="text" class="form-control" name="nama" value="{{ old('nama', $pegawai->nama) }}" readonly>
+    
                                 </div>
                             </div>
                             <div class="row mb-2">
                                 <label class="col-md-3">Jabatan</label>
                                 <div class="col-md-1">:</div>
                                 <div class="col-md-8">
-                                    <input type="text" class="form-control" name="jabatan" >
+                                    <input type="text" class="form-control" name="jabatan" value="{{ old('jabatan', $pegawai->jabatan) }}" readonly>
+
                                 </div>
                             </div>
                             <div class="row mb-2">
                                 <label class="col-md-3">Bidang</label>
                                 <div class="col-md-1">:</div>
                                 <div class="col-md-8">
-                                    <input type="text" class="form-control" name="bidang" >
+                                <input type="text" class="form-control" name="bidang" value="{{ old('id_bidang', $pegawai->bidang->nama) }}" readonly>
+
+
                                 </div>
                             </div>
                             <div class="row mb-2">
                                 <label class="col-md-3">Masa kerja</label>
                                 <div class="col-md-1">:</div>
                                 <div class="col-md-8">
-                                    <input type="text" class="form-control" name="masakerja" >
+                                    <input type="text" class="form-control" name="masakerja" value= "{{ old('masakerja', $pegawai->masakerja) }}" readonly>
+
                                 </div>
                             </div>
                         </div>
@@ -101,7 +106,8 @@
                                 <label class="col-md-3">Nama (Atasan Langsung)</label>
                                 <div class="col-md-1">:</div>
                                 <div class="col-md-8">
-                                    <input type="text" class="form-control" name="nama_penilai">
+                                    <input type="text" class="form-control" name="nama_penilai" value="{{ old('nama', $atasan) }}" readonly>
+
                                 </div>
                             </div>
                             <div class="row mb-2">
@@ -109,7 +115,7 @@
                                 <div class="col-md-1">:</div>
                                 <div class="col-md-8">
                                     <div class="input-group">
-                                        <input type="text" class="form-control" name="periode_penilaian">
+                                        <input type="text" class="form-control" name="periode_penilaian" value="{{ old('semester', $atasan) }}">
                                         <button class="btn btn-outline-secondary" type="button">
                                             <i class="fas fa-calendar"></i>
                                         </button>
