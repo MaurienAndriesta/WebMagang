@@ -15,12 +15,16 @@ class TrsKpi extends Model
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'string';
+    protected $allowedFields = ['id_pegawai', 'id_penilai', 'nilai_akhir', 'status',
+                                'grade', 'improvement', 'kelebihan', 'semester', 'tahun',
+                                'created_by', 'updated_by', 'deleted_by'];
 
-    protected $fillable = [
-        'id_pegawai', 'id_penilai', 'nilai_akhir', 'grade', 
-        'kelebihan', 'improvement', 'tahun', 'semester', 'status_kpi', 
-        'created_by', 'updated_by', 'deleted_by'
-    ];
+    public function getKpiData() {
+        return $this->select('trs_kpi.*, md_pegawai.nama as nama_pegawai, md_pegawai.jabatan, md_bidang.nama as nama_bidang')
+                    ->join('md_pegawai', 'trs_kpi.id_pegawai = md_pegawai.id')
+                    ->join('md_bidang', 'md_pegawai.id_bidang = md_bidang.id')
+                    ->findAll();
+    }
 
     protected static function boot()
     {
@@ -30,10 +34,24 @@ class TrsKpi extends Model
         });
     }
 
-    // Relasi ke Pegawai
+    public function kpiItems()
+    {
+        return $this->hasMany(TrsKpiItem::class, 'idKpi');
+    }
+
     public function pegawai()
     {
         return $this->belongsTo(MdPegawai::class, 'id_pegawai');
     }
-    
+
+    public function bidang()
+    {
+        return $this->belongsTo(MdBidang::class, 'id_bidang'); // Sesuaikan nama kolom jika berbeda
+    }
+
+    public function penilai()
+    {
+        return $this->belongsTo(MdPegawai::class, 'id_penilai');
+    }
+
 }

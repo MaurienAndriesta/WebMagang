@@ -1,102 +1,190 @@
 <?php
 
-// app/Http/Controllers/KpiController.php
 namespace App\Http\Controllers;
 
 use App\Models\TrsKpi;
+use App\Models\MdPegawai;
+use App\Models\MdPenilaian;
 use App\Models\TrsKpiItem;
-use App\Models\MdNilaiAkhir;
+use App\Models\MdSkalapenilaian;
+use App\Models\MdNilaiakhir;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use PDF;
 
-class KpiController extends Controller
+class KPIController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $kpis = TrsKpi::orderBy('created_at', 'desc')->paginate(10);
-        return view('penilaian_spv', compact('kpis'));
+        $user = Auth::user();
+        $userRole = $user->role;
+        $pegawai = MdPegawai::find($user->id_pegawai);  // Pastikan relasi ini ada
+
+        $kpis = TrsKpi::with(['pegawai', 'pegawai.bidang', 'penilai'])->orderBy('created_at', 'desc')->get();
+
+        if ($pegawai->jabatan == 'Staff') {
+            $kpis = $kpis->where('id_pegawai', $pegawai->id);
+        } elseif ($request->has('search')) { // Tambahkan pencarian hanya jika bukan staff
+            $kpis = $kpis->whereHas('pegawai', function ($query) use ($request) {
+                $query->where('nama', 'like', '%' . $request->search . '%');
+            });
+        }
+
+
+        return view('kpi.index', compact('kpis', 'pegawai', 'userRole')); // Kirim $pegawai ke view
     }
 
-    private function tentukanGrade($nilai)
+    public function create()
     {
-        $grade = MdNilaiAkhir::where('nilai_awal', '<=', $nilai)
-                             ->where('nilai_akhir', '>=', $nilai)
-                             ->first();
+        $pegawai = MdPegawai::all();
+        $penilaianItems = MdPenilaian::all();
+        $user = Auth::user();
+        $skalaPenilaian = MdSkalapenilaian::all(); // Ambil data skala penilaian
+        $nilaiAkhirRentang = MdNilaiakhir::all();
 
-        return $grade ? $grade->grade : 'E';
+
+
+        return view('kpi.create', compact('pegawai', 'penilaianItems', 'user', 'skalaPenilaian', 'nilaiAkhirRentang')); // Pass ke view
+
     }
+
 
     public function store(Request $request)
-    {
-        $request->validate([
-            'id_pegawai' => 'required|uuid',
-            'id_penilai' => 'required|uuid',
-            'tahun' => 'required|numeric',
-            'semester' => 'required|in:1,2',
-            'items' => 'required|array',
-            'items.*.id_penilaian' => 'required|uuid',
-            'items.*.nilai_spv' => 'required|numeric|min:0|max:100',
+{
+    $user = Auth::user();
+    $pegawai = MdPegawai::find($user->id_pegawai);
+
+    $validatedData = $request->validate([
+        'id_pegawai' => 'required',
+        'tahun' => 'required|numeric',
+        'semester' => 'required|in:1,2',
+        'items.*.nilai_spv' => 'sometimes|nullable|numeric',
+        'items.*.nilai_manager' => 'sometimes|nullable|numeric',
+        'items.*.catatan' => 'nullable|string',
+        'kedisiplinan.*.hari' => 'sometimes|nullable|numeric',
+        'kedisiplinan.*.penalty_score' => 'sometimes|nullable|numeric',
+        'improvement' => 'nullable|string',
+        'kelebihan' => 'nullable|string',
+        'total_penalty_score' => 'nullable|numeric', // Validasi total penalty score
+        'nilai_akhir' => 'required|numeric|min:0', // Validasi nilai akhir
+        'grade' => 'required|string|max:2',
+        'status' => 'required|string',
+
+    ]);
+    try {
+        // Simpan data ke tabel trs_kpi
+        $kpi = TrsKpi::create([
+            'id_pegawai' => $validatedData['id_pegawai'],
+            'tahun' => $validatedData['tahun'],
+            'semester' => $validatedData['semester'],
+            'improvement' => $validatedData['improvement'],
+            'kelebihan' => $validatedData['kelebihan'],
+            'nilai_akhir' => $validatedData['nilai_akhir'],
+            'grade' => $validatedData['grade'],
+            'status' => $validatedData['status'],
+            'total_penalty_score' => $validatedData['total_penalty_score'],
+            'id_penilai' => $user->id_pegawai, // Pastikan ada kolom id_penilai di tabel trs_kpi
         ]);
 
-        $kpi = new TrsKpi();
-        $kpi->id_pegawai = $request->id_pegawai;
-        $kpi->id_penilai = $request->id_penilai;
-        $kpi->tahun = $request->tahun;
-        $kpi->semester = $request->semester;
-        $kpi->status_kpi = 'review_spv';
-        $kpi->created_by = Auth::id();
-        $kpi->save();
 
-        foreach ($request->items as $item) {
+        // Simpan data ke tabel trs_kpi_item (items)
+        foreach ($request->input('items', []) as $itemId => $itemData) {
+
             TrsKpiItem::create([
-                'id_kpi' => $kpi->id,
-                'id_penilaian' => $item['id_penilaian'],
-                'nilai_spv' => $item['nilai_spv'],
-                'created_by' => Auth::id(),
+                'idKpi' => $kpi->id,
+                'id_penilaian' => $itemId,
+                'nilai_spv' => $itemData['nilai_spv'],
+                'nilai_manager' => $itemData['nilai_manager'],
+                'catatan' => $itemData['catatan'],
+                'score' => $itemData['score'],
             ]);
         }
 
-        return redirect()->route('kpi.index')->with('success', 'KPI berhasil disimpan');
-    }
-
-    public function submitToManager($id)
-    {
-        $kpi = TrsKpi::findOrFail($id);
-        $kpi->status_kpi = 'review_manager';
-        $kpi->save();
-
-        return redirect()->route('kpi.index')->with('success', 'KPI diajukan ke Manager');
-    }
-
-    public function managerEvaluate(Request $request, $id)
-    {
-        $request->validate([
-            'items' => 'required|array',
-            'items.*.id' => 'required|uuid',
-            'items.*.nilai_manager' => 'required|numeric|min:0|max:100',
-        ]);
-
-        $kpi = TrsKpi::findOrFail($id);
-
-        foreach ($request->items as $item) {
-            $kpiItem = TrsKpiItem::findOrFail($item['id']);
-            $kpiItem->nilai_manager = $item['nilai_manager'];
-            $kpiItem->updated_by = Auth::id();
-            $kpiItem->save();
+        // Simpan data ke tabel trs_kpi_item (kedisiplinan)
+        foreach ($request->input('kedisiplinan', []) as $itemId => $itemData) {
+            TrsKpiItem::create([
+                'idKpi' => $kpi->id,
+                'id_penilaian' => $itemId,
+                'hari' => $itemData['hari'],
+                'penalty_score' => $itemData['penalty_score'],
+            ]);
         }
 
-        $total_spv = $kpi->kpiItems()->sum('nilai_spv');
-        $total_manager = $kpi->kpiItems()->sum('nilai_manager');
-        $total_items = $kpi->kpiItems()->count();
 
-        // Hitung nilai akhir
-        $nilai_akhir = (($total_spv + $total_manager) / (2 * $total_items));
-        $kpi->nilai_akhir = $nilai_akhir;
-        $kpi->grade = $this->tentukanGrade($nilai_akhir);
-        $kpi->status_kpi = 'approved';
-        $kpi->updated_by = Auth::id();
+        return redirect()->route('kpi.index')->with('success', 'KPI berhasil dibuat.');
+
+    } catch (\Exception $e) {
+        return redirect()->back()->withErrors(['error' => $e->getMessage()]);
+          // return redirect()->back()->withErrors(['error' => 'Terjadi kesalahan saat menyimpan data.']);
+    }
+}
+
+    public function inputNilai(TrsKpi $kpi)
+    {
+        $penilaianItems = MdPenilaian::all();
+        $user = Auth::user();
+        $pegawai = MdPegawai::find($user->id_pegawai);
+
+        // Akses item KPI melalui relasi:
+        $existingItems = $kpi->kpiItems; // Mengambil semua item yang terkait dengan KPI ini
+
+        // Authorization using policies (recommended)
+        //$this->authorize('update', $kpi);
+
+         // Manual authorization (less recommended, but shown here for clarity)
+        if (! (($pegawai->jabatan == 'SPV' && $kpi->status == 'Review SPV') ||
+            ($pegawai->jabatan == 'Manager' && $kpi->status == 'Review Manager')) )
+        {
+            abort(403, 'Unauthorized');
+        }
+
+
+
+        return view('kpi.input_nilai', compact('kpi', 'penilaianItems', 'pegawai'));
+    }
+
+
+    public function ajukan(TrsKpi $kpi)
+    {
+        // Authorize SPV
+        $user = Auth::user();
+        $pegawai = MdPegawai::find($user->id_pegawai);
+        if ($pegawai->jabatan != 'SPV' || $kpi->status != 'Review SPV') {
+            abort(403);
+        }
+
+        $kpi->status = 'Review Manager';
         $kpi->save();
 
-        return redirect()->route('penilaian_spv.index')->with('success', 'Penilaian Manager berhasil disimpan');
+        return redirect()->route('kpi.index')->with('success', 'KPI diajukan.');
     }
+
+
+    public function approve(TrsKpi $kpi)
+    {
+        // Authorize Manager
+        $user = Auth::user();
+        $pegawai = MdPegawai::find($user->id_pegawai);
+        if ($pegawai->jabatan != 'Manager' || $kpi->status != 'Review Manager') {
+            abort(403);
+        }
+
+
+        $kpi->status = 'Approved';
+        $kpi->save();
+
+        return redirect()->route('kpi.index')->with('success', 'KPI disetujui.');
+    }
+
+    public function download(TrsKpi $kpi)
+    {
+        // Check if Approved (and potentially authorize based on user role)
+        if ($kpi->status !== 'Approved') {
+            abort(403, 'KPI belum disetujui.');
+        }
+
+        $pdf = PDF::loadView('kpi.report', compact('kpi')); // Create your 'kpi.report' view
+        return $pdf->download('laporan_kpi_' . $kpi->id . '.pdf');
+    }
+
 }

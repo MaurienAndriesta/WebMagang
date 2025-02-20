@@ -15,11 +15,8 @@ class TrsKpiItem extends Model
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'string';
+    protected $fillable = ['idKpi', 'id_penilaian', 'catatan', 'nilai_spv', 'nilai_manager', 'created_by', 'updated_by', 'deleted_by'];
 
-    protected $fillable = [
-        'id_kpi', 'id_penilaian', 'nilai_spv', 'nilai_manager', 'catatan',
-        'created_by', 'updated_by', 'deleted_by'
-    ];
 
     protected static function boot()
     {
@@ -29,8 +26,14 @@ class TrsKpiItem extends Model
         });
     }
 
+
     public function kpi()
     {
-        return $this->belongsTo(TrsKpi::class, 'id_kpi');
+        return $this->belongsTo(TrsKpi::class, 'idKpi'); // Relasi ke TrsKpi
+    }
+
+    public function penilaian()
+    {
+        return $this->belongsTo(MdPenilaian::class, 'id_penilaian'); // Relasi ke MdPenilaian
     }
 }

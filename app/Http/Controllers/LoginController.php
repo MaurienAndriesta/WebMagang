@@ -78,4 +78,9 @@ class LoginController extends Controller
     {
         return view('dashboardpegawai');  // Pastikan Anda memiliki view dashboard_karyawan.blade.php
     }
+    // app/Models/User.php
+    public function pegawai()
+    {
+        return $this->belongsTo(MdPegawai::class, 'id_pegawai'); // Sesuaikan nama kolom foreign key
+    }
 }

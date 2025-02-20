@@ -16,4 +16,9 @@ class User extends Authenticatable
     protected $fillable = ['id_pegawai', 'username', 'password', 'role']; // Kolom yang bisa diisi
 
     protected $hidden = ['password', 'remember_token']; // Kolom yang disembunyikan
+    // app/Models/User.php
+    public function pegawai()
+    {
+        return $this->belongsTo(MdPegawai::class, 'id_pegawai'); // Sesuaikan nama kolom foreign key
+        }
 }
