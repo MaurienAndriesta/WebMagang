@@ -1,21 +1,20 @@
 <?php
 
+// app/Http/Controllers/KpiController.php
 namespace App\Http\Controllers;
 
-use App\Models\Kpi_manager;
 use App\Models\TrsKpi;
-use App\Models\Trskpiitem;
+use App\Models\TrsKpiItem;
 use App\Models\MdNilaiAkhir;
-use App\Models\Trskpimanager;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class Kpi_managerController extends Controller
+class KpiController extends Controller
 {
     public function index()
     {
-        $kpis = Trskpimanager::orderBy('created_at', 'desc')->paginate(10);
-        return view('trs_kpi', compact('kpis'));
+        $kpis = TrsKpi::orderBy('created_at', 'desc')->paginate(10);
+        return view('penilaian_spv', compact('kpis'));
     }
 
     private function tentukanGrade($nilai)
@@ -39,7 +38,7 @@ class Kpi_managerController extends Controller
             'items.*.nilai_spv' => 'required|numeric|min:0|max:100',
         ]);
 
-        $kpi = new Trskpimanager();
+        $kpi = new TrsKpi();
         $kpi->id_pegawai = $request->id_pegawai;
         $kpi->id_penilai = $request->id_penilai;
         $kpi->tahun = $request->tahun;
@@ -49,7 +48,7 @@ class Kpi_managerController extends Controller
         $kpi->save();
 
         foreach ($request->items as $item) {
-            TrskpiItem::create([
+            TrsKpiItem::create([
                 'id_kpi' => $kpi->id,
                 'id_penilaian' => $item['id_penilaian'],
                 'nilai_spv' => $item['nilai_spv'],
@@ -62,7 +61,7 @@ class Kpi_managerController extends Controller
 
     public function submitToManager($id)
     {
-        $kpi = Trskpimanager::findOrFail($id);
+        $kpi = TrsKpi::findOrFail($id);
         $kpi->status_kpi = 'review_manager';
         $kpi->save();
 
@@ -77,10 +76,10 @@ class Kpi_managerController extends Controller
             'items.*.nilai_manager' => 'required|numeric|min:0|max:100',
         ]);
 
-        $kpi = Trskpimanager::findOrFail($id);
+        $kpi = TrsKpi::findOrFail($id);
 
         foreach ($request->items as $item) {
-            $kpiItem = TrskpiItem::findOrFail($item['id']);
+            $kpiItem = TrsKpiItem::findOrFail($item['id']);
             $kpiItem->nilai_manager = $item['nilai_manager'];
             $kpiItem->updated_by = Auth::id();
             $kpiItem->save();
@@ -90,15 +89,14 @@ class Kpi_managerController extends Controller
         $total_manager = $kpi->kpiItems()->sum('nilai_manager');
         $total_items = $kpi->kpiItems()->count();
 
+        // Hitung nilai akhir
         $nilai_akhir = (($total_spv + $total_manager) / (2 * $total_items));
-        $grade = $this->tentukanGrade($nilai_akhir);
-
         $kpi->nilai_akhir = $nilai_akhir;
-        $kpi->grade = $grade;
+        $kpi->grade = $this->tentukanGrade($nilai_akhir);
         $kpi->status_kpi = 'approved';
         $kpi->updated_by = Auth::id();
         $kpi->save();
 
-        return redirect()->route('kpi.index')->with('success', 'Penilaian Manager berhasil disimpan');
+        return redirect()->route('penilaian_spv.index')->with('success', 'Penilaian Manager berhasil disimpan');
     }
 }

@@ -10,8 +10,8 @@ use App\Http\Controllers\MdNilaiakhirController;
 use App\Http\Controllers\MdSkalapenilaianController;
 use App\Http\Controllers\MdPegawaiController;
 use App\Http\Controllers\MdPenggunaController;
-use App\Http\Controllers\TrskpispvController;
-use App\Http\Controllers\TrskpimanagerController;
+use App\Http\Controllers\KpiController;
+use App\Http\Controllers\KpiPenilaianController;
 
 // Halaman Utama
 Route::get('/', function () {
@@ -43,35 +43,9 @@ Route::get('/dashboardspv', function () {
     return view('dashboardspv');
 });
 
-// Halaman KPI Pegawai
-Route::get('/kpipegawai', function () {
-    return view('kpipegawai');
-});
-
-// Halaman KPI Manager
-Route::get('/Kpi_manager', function () {
-    return view('Kpi_manager');
-});
-
-// Halaman KPI SPV
-Route::get('/Kpi_spv', function () {
-    return view('Kpi_spv');
-});
-
-// Halaman KPI ADMIN
-Route::get('/kpiadmin', function () {
-    return view('kpiadmin');
-});
-
-// Halaman TRANSAKSI KPI SPV 
-Route::get('/trs_kpispv', function () {
-    return view('trs_kpispv');
-});
-
-
-// Halaman TRANSAKSI KPI MANAGER
-Route::get('/trs_kpimanager', function () {
-    return view('trs_kpimanager');
+// Halaman Dashboard SPV
+Route::get('/kpi', function () {
+    return view('kpi');
 });
 
 
@@ -116,12 +90,6 @@ Route::post('/md_pegawai', [MdPegawaiController::class, 'store'])->name('pegawai
 Route::put('/md_pegawai/{id}', [MdPegawaiController::class, 'update'])->name('pegawai.update'); // Mengupdate pegawai
 Route::delete('/md_pegawai/{id}', [MdPegawaiController::class, 'destroy'])->name('pegawai.destroy'); // Menghapus pegawai
 
-// Tambahkan route untuk KPI SPV
-Route::get('/Halkpi', [MdPegawaiController::class, 'kpi'])->name('kpi.index'); // Menampilkan daftar KPI
-Route::get('/Trskpispv/{id}', [MdPegawaiController::class, 'showFormPenilaian'])->name('Trskpi');
-
-// Tambahkan route untuk KPI MANAGER
-Route::get('/Kpi_manager', [MdPegawaiController::class, 'kpi'])->name('kpi.index'); // Menampilkan daftar KPI
 
 // Master Data Pengguna
 Route::get('/md_pengguna', [MdPenggunaController::class, 'index'])->name('pengguna.index'); 
@@ -142,13 +110,13 @@ Route::middleware('auth')->group(function () {
 // Download PDF
 Route::get('/pdf', [PdfController::class, 'generatePDF']);
 
+Route::get('/penilaian_spv', [KpiController::class, 'index'])->name('kpi.index');
+Route::post('/penilaian_spv/store', [KpiController::class, 'store'])->name('kpi.store');
+Route::post('/penilaian_spv/submit/{id}', [KpiController::class, 'submitToManager'])->name('kpi.submit');
+Route::post('/penilaian_spv/evaluate/{id}', [KpiController::class, 'managerEvaluate'])->name('kpi.evaluate');
 
-Route::get('/Trs_kpispv', [TrskpispvController::class, 'index'])->name('kpi.index');
-Route::post('/Trs_kpispv/store', [TrskpispvController::class, 'store'])->name('kpi.store');
-Route::post('/Trs_kpispv/{id}/submit', [TrskpispvController::class, 'submitToManager'])->name('kpi.submit');
-Route::post('/Trs_kpispv/{id}/manager-evaluate', [TrskpispvController::class, 'managerEvaluate'])->name('kpi.evaluate');
+Route::get('/kpi', [MdPegawaiController::class, 'kpi'])->name('kpi.index'); // Menampilkan daftar KPI
+Route::get('/penilaian_spv/{id}', [MdPegawaiController::class, 'showFormPenilaian'])->name('penilaian.spv');
 
-Route::get('/trs_kpimanager/{id}', [TrskpimanagerController::class, 'index'])->name('trs_kpimanager.index');
-//Route::get('/trs_kpimanager', [TrskpimanagerController::class, 'index'])->name('trs_kpimanager.index');
-Route::post('/trs_kpimanager', [TrskpimanagerController::class, 'store'])->name('trs_kpimanager.store');
-
+Route::get('/penilaian', [KpiPenilaianController::class, 'index'])->name('penilaian.index');
+Route::post('/penilaian', [KpiPenilaianController::class, 'store'])->name('penilaian.store');

@@ -58,13 +58,13 @@
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav ms-auto">
                         <li class="nav-item">
-                        <a class="nav-link" href="{{ url('/dashboardmanager') }}">Home</a>
+                            <a class="nav-link" href="{{ url('/dashboardspv') }}">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="kpi.php">KPI</a>
+                            <a class="nav-link" href="{{ url('/kpi') }}">KPI</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link btn btn-danger text-white px-3" href="logout.php">
+                            <a class="nav-link btn btn-danger text-white px-3" href="{{ url('/') }}">
                                 Logout
                             </a>
                         </li>
@@ -130,7 +130,7 @@
                                             @endif
                                         </td>
                                         <td class="text-center">
-                                            <a href="{{ url('/trs_kpimanager') }}" class="btn btn-sm btn-warning">
+                                            <a href="{{ url('/penilaian_spv/' . $pegawai->id) }}" class="btn btn-sm btn-warning">
                                                 ✏
                                             </a>
                                         </td>

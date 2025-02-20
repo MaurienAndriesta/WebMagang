@@ -40,7 +40,7 @@ class MdPegawaiController extends Controller
     $subbidangList = MdSubBidang::all();
     $atasanList = MdPegawai::where('jabatan', 'Manager')->get(); // Filter hanya Manager
     
-    return view('Halkpi', compact('pegawaiList', 'bidangList', 'subbidangList', 'atasanList'));
+    return view('kpi', compact('pegawaiList', 'bidangList', 'subbidangList', 'atasanList'));
 }
 
 public function showFormPenilaian($id)
@@ -53,7 +53,7 @@ public function showFormPenilaian($id)
 
     $atasan = MdPegawai::find($pegawai->id_atasan); // Ambil atasan jika ada
 
-    return view('Halkpi', compact('pegawai', 'atasan'));
+    return view('penilaian_spv', compact('pegawai', 'atasan'));
 }
 
     public function create()

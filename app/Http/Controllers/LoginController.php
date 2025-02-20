@@ -74,7 +74,7 @@ class LoginController extends Controller
     }
 
     // Dashboard untuk Karyawan
-    public function pegawai()
+    public function staff()
     {
         return view('dashboardpegawai');  // Pastikan Anda memiliki view dashboard_karyawan.blade.php
     }

@@ -131,7 +131,7 @@
                 <option value="{{ url('/md_skalapenilaian') }}">Skala Penilaian</option>
                 <option value="{{ url('/md_nilaiakhir') }}">Nilai Akhir</option>
             </select>
-            <button class="kpi-button" onclick="window.location.href='{{ url('/Kpi_admin') }}'">KPI</button>
+            <button class="kpi-button" onclick="window.location.href='{{ url('/') }}'">KPI</button>
             <button class="logout-button" onclick="window.location.href='{{ url('/') }}'">Logout</button>
         </div>
     </div>

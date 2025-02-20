@@ -1,3 +1,4 @@
+<!-- resources/views/penilaian_spv.blade.php -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -33,7 +34,7 @@
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav me-auto">
                         <li class="nav-item">
-                            <a class="nav-link" href="#">Home</a>
+                            <a class="nav-link" href="{{ url('/dashboardspv') }}">Home</a>
                         </li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="masterDataDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -45,11 +46,11 @@
                             </ul>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">KPI</a>
+                            <a class="nav-link" href="{{ url('/kpi') }}">KPI</a>
                         </li>
                     </ul>
                     <div class="d-flex">
-                        <button class="btn btn-danger">Logout</button>
+                        <button class="{{ url('/') }}">Logout</button>
                     </div>
                 </div>
             </div>
@@ -61,7 +62,8 @@
                 <h5>FORM PENILAIAN KINERJA TAHUNAN TKO</h5>
             </div>
             <div class="card-body">
-                <form id="kpiForm" method="POST" action="#">
+                <form id="kpiForm" method="POST" action="{{ route('kpi.store') }}">
+                    @csrf
                     <div class="row mb-4">
                         <div class="col-md-6">
                             <h6 class="fw-bold">IDENTITAS PEKERJA</h6>
@@ -69,28 +71,28 @@
                                 <label class="col-md-3">Nama</label>
                                 <div class="col-md-1">:</div>
                                 <div class="col-md-8">
-                                    <input type="text" class="form-control" name="nama" >
+                                    <input type="text" class="form-control" name="nama" value="{{ old('nama', $pegawai->nama) }}" readonly>
                                 </div>
                             </div>
                             <div class="row mb-2">
                                 <label class="col-md-3">Jabatan</label>
                                 <div class="col-md-1">:</div>
                                 <div class="col-md-8">
-                                    <input type="text" class="form-control" name="jabatan" >
+                                    <input type="text" class="form-control" name="jabatan" value="{{ old('jabatan', $pegawai->jabatan) }}" readonly>
                                 </div>
                             </div>
                             <div class="row mb-2">
                                 <label class="col-md-3">Bidang</label>
                                 <div class="col-md-1">:</div>
                                 <div class="col-md-8">
-                                    <input type="text" class="form-control" name="bidang" >
+                                    <input type="text" class="form-control" name="bidang" value="{{ old('id_bidang', $pegawai->bidang->nama) }}" readonly>
                                 </div>
                             </div>
                             <div class="row mb-2">
                                 <label class="col-md-3">Masa kerja</label>
                                 <div class="col-md-1">:</div>
                                 <div class="col-md-8">
-                                    <input type="text" class="form-control" name="masakerja" >
+                                    <input type="text" class="form-control" name="masakerja" value="{{ old('masakerja', $pegawai->masakerja) }}" readonly>
                                 </div>
                             </div>
                         </div>
@@ -101,7 +103,7 @@
                                 <label class="col-md-3">Nama (Atasan Langsung)</label>
                                 <div class="col-md-1">:</div>
                                 <div class="col-md-8">
-                                    <input type="text" class="form-control" name="nama_penilai">
+                                    <input type="text" class="form-control" name="nama_penilai" value="{{ old('nama', $atasan) }}" readonly>
                                 </div>
                             </div>
                             <div class="row mb-2">
@@ -109,30 +111,33 @@
                                 <div class="col-md-1">:</div>
                                 <div class="col-md-8">
                                     <div class="input-group">
-                                        <input type="text" class="form-control" name="periode_penilaian">
-                                        <button class="btn btn-outline-secondary" type="button">
-                                            <i class="fas fa-calendar"></i>
-                                        </button>
+                                        <select name="semester" class="form-control" required>
+                                            <option value="">-- Pilih Semester --</option>
+                                            <option value="1" {{ old('semester', $atasan) == 1 ? 'selected' : '' }}>Semester 1</option>
+                                            <option value="2" {{ old('semester', $atasan) == 2 ? 'selected' : '' }}>Semester 2</option>
+                                        </select>
                                     </div>
                                 </div>
                             </div>
+
                             <div class="row mb-2">
-                                <label class="col-md-3">Tanggal Penilaian</label>
-                                <div class="col-md-1">:</div>
-                                <div class="col-md-8">
-                                    <div class="input-group">
-                                        <input type="text" class="form-control" name="tanggal_penilaian">
-                                        <button class="btn btn-outline-secondary" type="button">
-                                            <i class="fas fa-calendar"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
+                            <label class="col-md-3">Tanggal Penilaian</label>
+                         <div class="col-md-1">:</div>
+                         <div class="col-md-8">
+                    <div class="input-group date">
+            <input type="text" class="form-control datepicker" name="tanggal_penilaian" value="{{ old('tanggal_penilaian') }}" autocomplete="off">
+            <button class="btn btn-outline-secondary" type="button">
+                <i class="fas fa-calendar"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
                             <div class="row mb-2">
                                 <label class="col-md-3">Sub Dir</label>
                                 <div class="col-md-1">:</div>
                                 <div class="col-md-8">
-                                    <input type="text" class="form-control" name="sub_dir" >
+                                    <input type="text" class="form-control" name="sub_dir">
                                 </div>
                             </div>
                         </div>
@@ -158,23 +163,23 @@
                                     <td>Pemenuhan Target Kerja</td>
                                     <td class="text-center">20</td>
                                     <td>
-                                        <input type="number" class="form-control form-control-sm" name="items[0][nilai_spv]" min="1" max="5" >
+                                        <input type="number" class="form-control form-control-sm" name="items[0][nilai_spv]" min="1" max="5">
                                     </td>
                                     <td>
                                         <input type="number" class="form-control form-control-sm" name="items[0][nilai_manager]" min="1" max="5" readonly>
                                     </td>
-                                    <td class="text-center"> </td>
-                                    <td> </td>
+                                    <td class="text-center"></td>
+                                    <td></td>
                                 </tr>
                                 <tr>
                                     <td class="text-center">2</td>
                                     <td>Kualitas Kerja</td>
                                     <td class="text-center">20</td>
                                     <td>
-                                        <input type="number" class="form-control form-control-sm" name="items[1][nilai_spv]" min="1" max="5" >
+                                        <input type="number" class="form-control form-control-sm" name="items[1][nilai_spv]" min="1" max="5">
                                     </td>
                                     <td>
-                                        <input type="number" class="form-control form-control-sm" name="items[1][nilai_manager]" min="1" max="5"readonly>
+                                        <input type="number" class="form-control form-control-sm" name="items[1][nilai_manager]" min="1" max="5" readonly>
                                     </td>
                                     <td class="text-center"></td>
                                     <td></td>
@@ -184,10 +189,10 @@
                                     <td>Kepatuhan</td>
                                     <td class="text-center">20</td>
                                     <td>
-                                        <input type="number" class="form-control form-control-sm" name="items[2][nilai_spv]" min="1" max="5" >
+                                        <input type="number" class="form-control form-control-sm" name="items[2][nilai_spv]" min="1" max="5">
                                     </td>
                                     <td>
-                                        <input type="number" class="form-control form-control-sm" name="items[2][nilai_manager]" min="1" max="5"readonly>
+                                        <input type="number" class="form-control form-control-sm" name="items[2][nilai_manager]" min="1" max="5" readonly>
                                     </td>
                                     <td class="text-center"></td>
                                     <td></td>
@@ -197,10 +202,10 @@
                                     <td>Kerjasama/ Team Work</td>
                                     <td class="text-center">20</td>
                                     <td>
-                                        <input type="number" class="form-control form-control-sm" name="items[3][nilai_spv]" min="1" max="5" >
+                                        <input type="number" class="form-control form-control-sm" name="items[3][nilai_spv]" min="1" max="5">
                                     </td>
                                     <td>
-                                        <input type="number" class="form-control form-control-sm" name="items[3][nilai_manager]" min="1" max="5"readonly>
+                                        <input type="number" class="form-control form-control-sm" name="items[3][nilai_manager]" min="1" max="5" readonly>
                                     </td>
                                     <td class="text-center"></td>
                                     <td></td>
@@ -210,10 +215,10 @@
                                     <td>Inisiatif</td>
                                     <td class="text-center">20</td>
                                     <td>
-                                        <input type="number" class="form-control form-control-sm" name="items[4][nilai_spv]" min="1" max="5" >
+                                        <input type="number" class="form-control form-control-sm" name="items[4][nilai_spv]" min="1" max="5">
                                     </td>
                                     <td>
-                                        <input type="number" class="form-control form-control-sm" name="items[4][nilai_manager]" min="1" max="5"readonly>
+                                        <input type="number" class="form-control form-control-sm" name="items[4][nilai_manager]" min="1" max="5" readonly>
                                     </td>
                                     <td class="text-center"></td>
                                     <td></td>
@@ -288,7 +293,7 @@
 
                     <div class="text-end">
                         <button type="submit" class="btn btn-success me-2">Simpan</button>
-                        <button type="button" class="btn btn-primary me-2">Ajukan</button>
+                        <button type="button" class="btn btn-primary me-2" onclick="submitToManager()">Ajukan</button>
                         <button type="button" class="btn btn-info me-2">Download</button>
                         <button type="button" class="btn btn-secondary">Kembali</button>
                     </div>
@@ -297,6 +302,17 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+
+    <script>
+    $(document).ready(function() {
+        $('.datepicker').datepicker({
+            format: 'yyyy-mm-dd',
+            autoclose: true,
+            todayHighlight: true
+        });
+    });
+</script>
 </html>
