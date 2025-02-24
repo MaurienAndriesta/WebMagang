@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
-class TrsKpiItem extends Model
+class Trskpiitem extends Model
 {
     use HasFactory, SoftDeletes;
 
@@ -15,7 +15,7 @@ class TrsKpiItem extends Model
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'string';
-    protected $fillable = ['idKpi', 'id_penilaian', 'catatan', 'nilai_spv', 'nilai_manager', 'created_by', 'updated_by', 'deleted_by'];
+    protected $fillable = ['id', 'id_kpi', 'id_penilaian', 'catatan', 'nilai_spv', 'nilai_manager', 'created_by', 'updated_by', 'deleted_by'];
 
 
     protected static function boot()
@@ -29,7 +29,7 @@ class TrsKpiItem extends Model
 
     public function kpi()
     {
-        return $this->belongsTo(TrsKpi::class, 'idKpi'); // Relasi ke TrsKpi
+        return $this->belongsTo(TrsKpi::class, 'id_kpi'); // Relasi ke TrsKpi
     }
 
     public function penilaian()

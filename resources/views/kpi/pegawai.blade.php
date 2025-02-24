@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Data Penilaian Karyawan</title>
+    <title>Master Data Bidang</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <style>
@@ -133,10 +133,10 @@
 
     <div class="header">
         <div class="logo">
-            <img src="img/LOGO.jpg" alt="PLN Icon Plus">
+            <img src="{{ asset('img/LOGO.jpg') }}" alt="PLN Icon Plus">
         </div>
         <div class="nav-buttons">
-            <button class="home-button" onclick="window.location.href='{{ url('/dashboardspv') }}'">Home</button>
+            <button class="home-button" onclick="window.location.href='{{ url('/dashboardpegawai') }}'">Home</button>
             <button class="kpi-button" onclick="window.location.href='{{ url('/kpi') }}'">KPI</button>
             <button class="logout-button" onclick="window.location.href='{{ url('/') }}'">Logout</button>
         </div>
@@ -153,17 +153,7 @@
                 @endif
 
                 <div class="inner-card">  <!-- Inner card added here -->
-                    <div class="d-flex justify-content-between mx-auto">
-                        <form method="GET" action="{{ route('kpi.index') }}" class="d-flex">
-                            <input type="text" name="search" class="form-control" placeholder="Cari..." value="{{ request('search') }}">
-                            <button type="submit" class="btn btn-white ms-0"><i class="bi bi-search"></i></button>
-                        </form>
-                        @if ($userRole == 'spv')
-                        <button class="btn btn-primary" onclick="window.location.href='{{ route('kpi.create') }}'">
-                            + Tambah
-                        </button>
-                        @endif
-                    </div>
+
                 </div>  <!-- End of inner card -->
 
                 <table>
@@ -183,27 +173,7 @@
                             <td>{{ $kpi->pegawai->nama }}</td>
                             <td>{{ $kpi->pegawai->jabatan }}</td>
                             <td>{{ $kpi->pegawai->bidang->nama }}</td>
-                            <td>{{ $kpi->status }}
-                                <div class="action-icons">
-                                    @if ($userRole == 'spv' && $kpi->status == 'Review SPV')
-                                        <button class="btn btn-sm btn-outline-primary" onclick="window.location.href='{{ route('kpi.editspv', $kpi->id) }}'">
-                                            <i class="bi bi-pencil-square"></i>
-                                        </button>
-                                    @endif
-                                    @if ($userRole == 'manager' && $kpi->status == 'Review Manager')
-                                        <button class="btn btn-sm btn-outline-primary" onclick="window.location.href='{{ route('kpi.editmanager', $kpi->id) }}'">
-                                            <i class="bi bi-pencil-square"></i>
-                                        </button>
-                                    @endif
-                                    <form action="{{ route('kpi.destroy', $kpi->id) }}" method="POST" class="d-inline">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Yakin ingin menghapus data ini?')">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                    </form>
-                                </div>
-                            </td>
+                            <td>{{ $kpi->status }}</td>
 
                             </tr>
                             @empty

@@ -17,35 +17,35 @@ Route::get('/', function () {
     return view('dashboard1');
 });
 
-// // Halaman Login
-// Route::get('/login', function () {
-//     return view('login');
-// })->name('login');
+// Halaman Login
+Route::get('/login', function () {
+    return view('login');
+})->name('login');
 
-// // Halaman Dashboard Manager
-// Route::get('/dashboardmanager', function () {
-//     return view('dashboardmanager');
-// });
+// Halaman Dashboard Manager
+Route::get('/dashboardmanager', function () {
+    return view('dashboardmanager');
+});
 
-// // Halaman Dashboard Pegawai
-// Route::get('/dashboardpegawai', function () {
-//     return view('dashboardpegawai   ');
-// });
+// Halaman Dashboard Pegawai
+Route::get('/dashboardpegawai', function () {
+    return view('dashboardpegawai   ');
+});
 
-// // Halaman Dashboard Admin
-// Route::get('/dashboardadmin', function () {
-//     return view('dashboardadmin');
-// });
+// Halaman Dashboard Admin
+Route::get('/dashboardadmin', function () {
+    return view('dashboardadmin');
+});
 
-// // Halaman Dashboard SPV
-// Route::get('/dashboardspv', function () {
-//     return view('dashboardspv');
-// });
+// Halaman Dashboard SPV
+Route::get('/dashboardspv', function () {
+    return view('dashboardspv');
+});
 
-// // Halaman Dashboard SPV
-// Route::get('/kpi', function () {
-//     return view('kpi');
-// });
+// Halaman Dashboard SPV
+Route::get('/kpi', function () {
+    return view('kpi');
+});
 
 
 // Login & Logout
@@ -108,23 +108,21 @@ Route::middleware('auth')->group(function () {
 
 // Download PDF
 Route::get('/pdf', [PdfController::class, 'generatePDF']);
-
-Route::get('/penilaian_spv', [KpiController::class, 'index'])->name('kpi.index');
-Route::post('/penilaian_spv/store', [KpiController::class, 'store'])->name('kpi.store');
-Route::post('/penilaian_spv/submit/{id}', [KpiController::class, 'submitToManager'])->name('kpi.submit');
-Route::post('/penilaian_spv/evaluate/{id}', [KpiController::class, 'managerEvaluate'])->name('kpi.evaluate');
-
-// Route::get('/kpi', [MdPegawaiController::class, 'kpi'])->name('kpi.index'); // Menampilkan daftar KPI
-// Route::get('/penilaian_spv/{id}', [MdPegawaiController::class, 'showFormPenilaian'])->name('penilaian.spv');
+Route::get('/kpi', [MdPegawaiController::class, 'kpi'])->name('kpi.index'); // Menampilkan daftar KPI
 
 
+// KPI Routes
 Route::middleware('auth')->group(function () {
     Route::get('/kpi', [KPIController::class, 'index'])->name('kpi.index');
-    Route::get('/kpi/{kpi}/input-nilai', [KPIController::class, 'inputNilai'])->name('kpi.inputNilai');
-    Route::post('/kpi/{kpi}/simpan-nilai', [KPIController::class, 'saveNilai'])->name('kpi.saveNilai');
-    Route::post('/kpi/{kpi}/ajukan', [KPIController::class, 'ajukan'])->name('kpi.ajukan');
-    Route::post('/kpi/{kpi}/approve', [KPIController::class, 'approve'])->name('kpi.approve');
-    Route::get('/kpi/{kpi}/download', [KPIController::class, 'download'])->name('kpi.download');
     Route::get('/kpi/create', [KPIController::class, 'create'])->name('kpi.create');
-    Route::post('/kpi', [KPIController::class, 'store'])->name('kpi.store');
+    Route::post('/kpi/store', [KPIController::class, 'store'])->name('kpi.store');
+    // Route::get('/kpi/manager', [KPIController::class, 'create'])->name('kpi.manager');
+    Route::get('/kpi/pegawai', [KPIController::class, 'pegawai'])->name('kpi.pegawai');
+    // routes/web.php
+    Route::get('/kpi/{kpi}/editspv', [KPIController::class, 'editspv'])->name('kpi.editspv');
+    Route::get('/kpi/{kpi}/editmanager', [KPIController::class, 'editmanager'])->name('kpi.editmanager');
+    Route::put('/kpi/{kpi}', [KPIController::class, 'update'])->name('kpi.update');
+    Route::get('/kpi/{kpi}/download', [KPIController::class, 'download'])->name('kpi.download');
+    Route::delete('/kpi/{id}', [KPIController::class, 'destroy'])->name('kpi.destroy');
+    // routes/web.php
 });

@@ -1,5 +1,5 @@
-<!-- resources/views/pdf/performance-assessment.blade.php -->
 <!DOCTYPE html>
+
 <html>
 <head>
     <meta charset="utf-8">
@@ -65,7 +65,7 @@
 </head>
 <body>
     <div class="header">
-        <img src="{{ public_path('images/pln-logo.png') }}" class="logo">
+        <img src="{{ public_path('img/LOGO.jpg') }}" class="logo">
         <h1 class="title">LAPORAN PENILAIAN KINERJA TAHUNAN TKO</h1>
     </div>
 

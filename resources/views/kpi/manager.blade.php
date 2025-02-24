@@ -119,7 +119,7 @@
             <img src="{{ asset('img/LOGO.jpg') }}" alt="PLN Icon Plus">
         </div>
         <div class="nav-buttons">
-            <button class="home-button" onclick="window.location.href='{{ url('/dashboardspv') }}'">Home</button>
+            <button class="home-button" onclick="window.location.href='{{ url('/dashboardmanager') }}'">Home</button>
             <button class="kpi-button" onclick="window.location.href='{{ url('/kpi') }}'">KPI</button>
             <button class="logout-button" onclick="window.location.href='{{ url('/') }}'">Logout</button>
         </div>
@@ -136,9 +136,8 @@
                     <div class="alert alert-success">{{ session('success') }}</div>
                 @endif
 
-                <form action="{{ route('kpi.store') }}" method="POST" >
+                <form method="POST" action="{{ route('kpi.store') }}">
                     @csrf
-                    <input type="hidden" name="status" id="status" value="Review SPV">
                         <table class="table table-borderless" style="width: 100%;">
                             <colgroup>
                                 <col span="1" style="width: 15%;">
@@ -161,30 +160,31 @@
                                     <td>Nama Pekerja</td>
                                     <td>:</td>
                                     <td>
-                                        <select name="id_pegawai" id="id_pegawai" class="form-control" onchange="updateDetails()">
-                                            @foreach ($pegawai->where('jabatan', 'Staff') as $p)
-                                                <option value="{{ $p->id }}" data-jabatan="{{ $p->jabatan }}" data-bidang="{{ $p->bidang->nama }}" data-masakerja="{{ $p->masakerja }}" data-atasan="{{ $p->atasan ? $p->atasan->id : '' }}">{{ $p->nama }}</option>
+                                        <select name="id_pegawai" id="id_pegawai" class="form-control">
+                                            @foreach($pegawai as $p)
+                                                <option value="{{ $p->id }}">{{ $p->nama }}</option>
                                             @endforeach
                                         </select>
                                     </td>
-                                <td>Nama (Atasan Langsung)</td>
-                                <td>:</td>
-                                <td colspan="2">
-                                    <select name="id_penilai" id="id_penilai" class="form-control">
-                                        <!-- Opsi akan diisi oleh JavaScript -->
-                                    </select>
-                                </td>
+
+                                    <td>Nama (Atasan Langsung)</td>
+                                    <td>:</td>
+                                    <td colspan="2"><input type="text" name="id_penilai" value="{{ $user->pegawai->nama }}" class="form-control" readonly></td>
                                 </tr>
                                 <tr>
                                     <td>Jabatan</td>
                                     <td>:</td>
                                     <td>
-                                        <input type="text" name="jabatan" id="jabatan" class="form-control" readonly>
+                                        <select name="id_pegawai" id="id_pegawai" class="form-control">
+                                            @foreach($pegawai as $p)
+                                                <option value="{{ $p->id }}">{{ $p->jabatan }}</option>
+                                            @endforeach
+                                        </select>
                                     </td>
                                     <td>Periode Penilaian</td>
                                     <td>:</td>
-                                    <td><input type="number" name="tahun" id="tahun" class="form-control" min="2000" placeholder="Masukan Tahun" required></td>
-                                    <td><select name="semester" id="semester" class="form-control" aria-placeholder="Semester" required>
+                                    <td><input type="number" name="tahun" id="tahun" class="form-control" min="2000" placeholder="Masukan Tahun"></td>
+                                    <td><select name="semester" id="semester" class="form-control" aria-placeholder="Semester">
                                         <option value="1">1</option>
                                         <option value="2">2</option>
                                     </select>
@@ -194,21 +194,29 @@
                                     <td>Bidang</td>
                                     <td>:</td>
                                     <td>
-                                        <input type="text" name="bidang" id="bidang" class="form-control" readonly>
+                                        <select name="id_pegawai" id="id_pegawai" class="form-control">
+                                            @foreach($pegawai as $p)
+                                                <option value="{{ $p->id }}">{{ $p->bidang->nama }}</option>
+                                            @endforeach
+                                        </select>
                                     </td>
                                     <td>Tanggal Penilaian</td>
                                     <td>:</td>
-                                    <td colspan="2"><input type="date" name="tanggal_penilaian" id="tanggal" class="form-control" required></td>
+                                    <td colspan="2"><input type="date" name="tanggal_penilaian" id="tanggal" class="form-control"></td>
                                 </tr>
                                 <tr>
                                     <td>Masa Kerja</td>
                                     <td>:</td>
                                     <td>
-                                        <input type="text" name="masa_kerja" id="masa_kerja" class="form-control" readonly>
+                                    <select name="id_pegawai" id="id_pegawai" class="form-control">
+                                        @foreach($pegawai as $p)
+                                            <option value="{{ $p->id }}">{{ $p->masakerja }}</option>
+                                        @endforeach
+                                    </select>
                                     </td>
                                     <td>Sub Dir</td>
                                     <td>:</td>
-                                    <td colspan="2"><input type="text" name="sub_dir" id="sub_dir" class="form-control" required></td>
+                                    <td colspan="2"><input type="text" name="sub_dir" id="sub_dir" class="form-control"></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -246,8 +254,7 @@
                                     <td>{{ $item->nama }}</td>
                                     <td style="text-align: center">{{ $item->bobot }}</td>
                                     <td>
-                                        <input type="hidden" name="items[{{ $item->id }}][nilai_spv]" value="">
-                                        <select name="items[{{ $item->id }}][nilai_spv]" class="form-control nilai_spv" data-bobot="{{ $item->bobot }}">
+                                        <select name="items[{{ $item->id }}][nilai_spv]" class="form-control nilai_spv" data-bobot="{{ $item->bobot }}" disabled>
                                             <option style="text-align: center" value="">Pilih Nilai SPV</option>
                                             @foreach ($skalaPenilaian as $skala)
                                                 <option value="{{ $skala->angka }}">{{ $skala->angka }} - {{ $skala->keterangan }}</option>
@@ -255,8 +262,7 @@
                                         </select>
                                     </td>
                                     <td>
-                                        <input type="hidden" name="items[{{ $item->id }}][nilai_manager]" value="">
-                                        <select name="items[{{ $item->id }}][nilai_manager]" class="form-control nilai_manager" data-bobot="{{ $item->bobot }}" disabled >
+                                        <select name="items[{{ $item->id }}][nilai_manager]" class="form-control nilai_manager" data-bobot="{{ $item->bobot }}">
                                             <option style="text-align: center" value="">Pilih Nilai Manager</option>
                                             @foreach ($skalaPenilaian as $skala)
                                                 <option value="{{ $skala->angka }}">{{ $skala->angka }} - {{ $skala->keterangan }}</option>
@@ -302,18 +308,15 @@
                             @foreach ($penilaianItems->where('kategori', 'Penilaian Kedisiplinan') as $item)
                                 <tr>
                                     <td>{{ $item->nama }}</td>
-                                    <td>
-                                        <input style="text-align: center" type="number" name="kedisiplinan[{{ $item->id }}][nilai_spv]" class="form-control hari" data-bobot="{{ $item->bobot }}" value="0"> </td>
-                                    <td>
-                                        <input style="text-align: center" type="number" name="kedisiplinan[{{ $item->id }}][penalty_score]" class="form-control penalty-score" data-bobot="{{ $item->bobot }}" value="0" readonly></td>
+                                    <td><input style="text-align: center" type="number" name="kedisiplinan[{{ $item->id }}][hari]" class="form-control hari" data-bobot="{{ $item->bobot }}"></td>
+                                    <td><input style="text-align: center" type="number" name="kedisiplinan[{{ $item->id }}][penalty_score]" class="form-control penalty-score" data-bobot="{{ $item->bobot }}" readonly></td>
                                     @if ($loop->first)  {{-- Hanya tampilkan di baris pertama --}}
                                     <td rowspan="{{ $jumlahKedisiplinan + 3}}" style="vertical-align : middle;text-align:center;">  {{-- rowspan dinamis --}}
-                                        <input style="text-align: center" type="number" name="total_penalty_score" id="totalPenaltyScore" class="form-control" value="0" readonly>
+                                        <input style="text-align: center" type="number" name="total_penalty_score" id="totalPenaltyScore" class="form-control" readonly>
 
                                     </td>
-                                    <input type="hidden" name="grade" value="">
+
                                     <td rowspan="{{ $jumlahKedisiplinan + 3}}"  style="vertical-align : middle;text-align:center;"><input style="text-align: center" type="text" name="grade" id="grade" class="form-control" readonly></td>
-                                    <input type="hidden" name="nilai_akhir" value="">
                                     <td rowspan="{{ $jumlahKedisiplinan + 3}}" style="vertical-align : middle;text-align:center;" ><input style="text-align: center" type="number" name="nilai_akhir" id="nilaiAkhir" class="form-control" readonly></td>
 
                                 @endif
@@ -342,12 +345,12 @@
                     <tr>
                         <td>Improvement:</td>
                         <td></td>
-                        <td><button type="submit" class="btn btn-warning" style="color: white" name="ajukan" value="1" onclick="return validateForm()"><i class="bi bi-send-check" style="color: white"></i>  Ajukan</button></td>
+                        <td><button type="submit" class="btn btn-warning" style="color: white" name="ajukan" value="1"><i class="bi bi-send-check" style="color: white"></i>  Ajukan</button></td>
                     </tr>
                     <tr>
                         <td><textarea name="improvement" id="improvement" class="form-control"></textarea></td>
                         <td></td> {{-- Sel kosong --}}
-                        {{-- <td><button type="submit" class="btn btn-primary" name="download"><i class="bi bi-download"></i>  Download</button></td> --}}
+                        <td><button type="submit" class="btn btn-primary" name="download"><i class="bi bi-download"></i>  Download</button></td>
                     </tr>
 
                 </table>
@@ -358,50 +361,6 @@
         </div>
     </div>
             <script>
-                 console.log()
-                 const pegawaiData = @json($pegawai);
-                function updateDetails() {
-                    const selectedPegawaiId = document.getElementById('id_pegawai').value;
-                    const penilaiSelect = document.getElementById('id_penilai');
-                    const selectPegawai = document.getElementById('id_pegawai');
-                    const jabatanInput = document.getElementById('jabatan');
-                    const bidangInput = document.getElementById('bidang');
-                    const masaKerjaInput = document.getElementById('masa_kerja');
-
-                    // Kosongkan dropdown penilai
-                    penilaiSelect.innerHTML = '';
-
-                    // Temukan pegawai yang dipilih
-                    const selectedPegawai = pegawaiData.find(p => p.id === selectedPegawaiId);
-
-                    // Jika pegawai memiliki atasan, tambahkan ke dropdown
-                    if (selectedPegawai && selectedPegawai.id_atasan) {
-                        const atasan = pegawaiData.find(p => p.id === selectedPegawai.id_atasan);
-                        if (atasan) {
-                            const option = document.createElement('option');
-                            option.value = atasan.id;
-                            option.textContent = atasan.nama;
-                            penilaiSelect.appendChild(option);
-                        }
-                    }
-                    const selectedOption = selectPegawai.options[selectPegawai.selectedIndex];
-
-                    if (selectedOption) {
-                        jabatanInput.value = selectedOption.dataset.jabatan || '';
-                        bidangInput.value = selectedOption.dataset.bidang || '';
-                        masaKerjaInput.value = selectedOption.dataset.masakerja || '';
-
-
-                    }else {
-                        // Reset nilai jika tidak ada pegawai yang dipilih
-                        jabatanInput.value = '';
-                        bidangInput.value = '';
-                        masaKerjaInput.value = '';
-
-
-                    }
-                }
-                updateDetails();
                 // Hitung score di tabel 1
                 const nilaiSpvInputs = document.querySelectorAll('.nilai_spv');
                 const nilaiManagerInputs = document.querySelectorAll('.nilai_manager');
@@ -509,29 +468,7 @@
             // Panggil fungsi updateGrade() setiap kali nilai akhir berubah
             nilaiAkhirInput.addEventListener('input', updateGrade);
 
-            function validateForm() {
-                const nilaiSpvSelects = document.querySelectorAll('.nilai_spv');
-                let hasEmptyNilaiSpv = false;
 
-                nilaiSpvSelects.forEach(select => {
-                    if (select.value === '') {
-                        hasEmptyNilaiSpv = true;
-                    }
-                });
-
-                if (hasEmptyNilaiSpv) {
-                    alert('Nilai SPV masih ada yang kosong. Mohon lengkapi terlebih dahulu.');
-                    return false; // Mencegah form disubmit
-                }
-
-
-                document.getElementById('status').value = 'Review Manager'; // Set status menjadi 'Review Manager'
-
-
-
-                return true; // Melanjutkan submit form
-
-        }
             </script>
 
             <!-- Bootstrap JS -->

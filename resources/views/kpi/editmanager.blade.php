@@ -136,9 +136,10 @@
                     <div class="alert alert-success">{{ session('success') }}</div>
                 @endif
 
-                <form action="{{ route('kpi.store') }}" method="POST" >
+                <form action="{{ route('kpi.update', $kpi->id) }}" method="POST" >
                     @csrf
-                    <input type="hidden" name="status" id="status" value="Review SPV">
+                    @method('PUT')
+                    <input type="hidden" name="status" id="status" value="Review Manager">
                         <table class="table table-borderless" style="width: 100%;">
                             <colgroup>
                                 <col span="1" style="width: 15%;">
@@ -163,7 +164,7 @@
                                     <td>
                                         <select name="id_pegawai" id="id_pegawai" class="form-control" onchange="updateDetails()">
                                             @foreach ($pegawai->where('jabatan', 'Staff') as $p)
-                                                <option value="{{ $p->id }}" data-jabatan="{{ $p->jabatan }}" data-bidang="{{ $p->bidang->nama }}" data-masakerja="{{ $p->masakerja }}" data-atasan="{{ $p->atasan ? $p->atasan->id : '' }}">{{ $p->nama }}</option>
+                                                <option value="{{ $p->id }}" data-jabatan="{{ $p->jabatan }}" data-bidang="{{ $p->bidang->nama }}" data-masakerja="{{ $p->masakerja }}" data-atasan="{{ $p->atasan ? $p->atasan->id : '' }}" {{ $kpi->id_pegawai == $p->id ? 'selected' : '' }}>{{ $p->nama }}</option>
                                             @endforeach
                                         </select>
                                     </td>
@@ -183,10 +184,10 @@
                                     </td>
                                     <td>Periode Penilaian</td>
                                     <td>:</td>
-                                    <td><input type="number" name="tahun" id="tahun" class="form-control" min="2000" placeholder="Masukan Tahun" required></td>
+                                    <td><input type="number" name="tahun" id="tahun" class="form-control" min="2000" placeholder="Masukan Tahun" value="{{ $kpi->tahun }}" required></td>
                                     <td><select name="semester" id="semester" class="form-control" aria-placeholder="Semester" required>
-                                        <option value="1">1</option>
-                                        <option value="2">2</option>
+                                        <option value="1" {{ $kpi->semester == 1 ? 'selected' : '' }}>1</option>
+                                        <option value="2" {{ $kpi->semester == 2 ? 'selected' : '' }}>2</option>
                                     </select>
                                     </td>
                                 </tr>
@@ -241,30 +242,32 @@
                     </thead>
                     <tbody>
                         @foreach ($penilaianItems->where('kategori', 'Kriteria Penilaian') as $item)
+                            @php
+                                $kpiItem = $kpi->kpiItems->where('id_penilaian', $item->id)->first();
+                            @endphp
                                 <tr>
                                     <td style="text-align: center">{{ $loop->iteration }}</td>
                                     <td>{{ $item->nama }}</td>
                                     <td style="text-align: center">{{ $item->bobot }}</td>
                                     <td>
-                                        <input type="hidden" name="items[{{ $item->id }}][nilai_spv]" value="">
-                                        <select name="items[{{ $item->id }}][nilai_spv]" class="form-control nilai_spv" data-bobot="{{ $item->bobot }}">
+                                        <input type="hidden" name="items[{{ $item->id }}][nilai_spv]" value="{{ $kpiItem->nilai_spv ?? '' }}">
+                                        <select name="items[{{ $item->id }}][nilai_spv]" class="form-control nilai_spv" data-bobot="{{ $item->bobot }}" disabled>
                                             <option style="text-align: center" value="">Pilih Nilai SPV</option>
                                             @foreach ($skalaPenilaian as $skala)
-                                                <option value="{{ $skala->angka }}">{{ $skala->angka }} - {{ $skala->keterangan }}</option>
+                                                <option value="{{ $skala->angka }}" {{ $kpiItem && $kpiItem->nilai_spv == $skala->angka ? 'selected' : '' }}>{{ $skala->angka }} - {{ $skala->keterangan }}</option>
                                             @endforeach
                                         </select>
                                     </td>
                                     <td>
-                                        <input type="hidden" name="items[{{ $item->id }}][nilai_manager]" value="">
-                                        <select name="items[{{ $item->id }}][nilai_manager]" class="form-control nilai_manager" data-bobot="{{ $item->bobot }}" disabled >
+                                        <select name="items[{{ $item->id }}][nilai_manager]" class="form-control nilai_manager" data-bobot="{{ $item->bobot }}" >
                                             <option style="text-align: center" value="">Pilih Nilai Manager</option>
                                             @foreach ($skalaPenilaian as $skala)
-                                                <option value="{{ $skala->angka }}">{{ $skala->angka }} - {{ $skala->keterangan }}</option>
+                                                <option value="{{ $skala->angka }}" {{ $kpiItem && $kpiItem->nilai_manager == $skala->angka ? 'selected' : '' }}>{{ $skala->angka }} - {{ $skala->keterangan }}</option>
                                             @endforeach
                                         </select>
                                     </td>
                                     <td><input  style="text-align: center" type="number" name="items[{{ $item->id }}][score]" class="form-control score" data-bobot="{{ $item->bobot }}" readonly></td>
-                                    <td><textarea style="width: 100%" name="items[{{ $item->id }}][catatan]"></textarea></td>
+                                    <td><textarea style="width: 100%" name="items[{{ $item->id }}][catatan]">{{ $kpiItem ? $kpiItem->catatan : '' }}</textarea></td>
                                 </tr>
                             @endforeach
                             <tr>
@@ -300,21 +303,24 @@
                     @php $jumlahKedisiplinan = $penilaianItems->where('kategori', 'Penilaian Kedisiplinan')->count(); @endphp
 
                             @foreach ($penilaianItems->where('kategori', 'Penilaian Kedisiplinan') as $item)
+                            @php
+                            $kpiItemKedisiplinan = $kpi->kpiItems->where('id_penilaian', $item->id)->first();
+                        @endphp
                                 <tr>
                                     <td>{{ $item->nama }}</td>
                                     <td>
-                                        <input style="text-align: center" type="number" name="kedisiplinan[{{ $item->id }}][nilai_spv]" class="form-control hari" data-bobot="{{ $item->bobot }}" value="0"> </td>
+                                        <input style="text-align: center" type="number" name="kedisiplinan[{{ $item->id }}][nilai_spv]" class="form-control hari" data-bobot="{{ $item->bobot }}" value="{{ $kpiItemKedisiplinan ? $kpiItemKedisiplinan->nilai_spv : '0'}}"> </td>
                                     <td>
-                                        <input style="text-align: center" type="number" name="kedisiplinan[{{ $item->id }}][penalty_score]" class="form-control penalty-score" data-bobot="{{ $item->bobot }}" value="0" readonly></td>
+                                        <input style="text-align: center" type="number" name="kedisiplinan[{{ $item->id }}][penalty_score]" class="form-control penalty-score" data-bobot="{{ $item->bobot }}" value="{{ $kpiItemKedisiplinan ? $kpiItemKedisiplinan->penalty_score : '0'}}" readonly></td>
                                     @if ($loop->first)  {{-- Hanya tampilkan di baris pertama --}}
                                     <td rowspan="{{ $jumlahKedisiplinan + 3}}" style="vertical-align : middle;text-align:center;">  {{-- rowspan dinamis --}}
-                                        <input style="text-align: center" type="number" name="total_penalty_score" id="totalPenaltyScore" class="form-control" value="0" readonly>
+                                        <input style="text-align: center" type="number" name="total_penalty_score" id="totalPenaltyScore" class="form-control" value="{{ $kpi->total_penalty_score }}" readonly>
 
                                     </td>
-                                    <input type="hidden" name="grade" value="">
-                                    <td rowspan="{{ $jumlahKedisiplinan + 3}}"  style="vertical-align : middle;text-align:center;"><input style="text-align: center" type="text" name="grade" id="grade" class="form-control" readonly></td>
-                                    <input type="hidden" name="nilai_akhir" value="">
-                                    <td rowspan="{{ $jumlahKedisiplinan + 3}}" style="vertical-align : middle;text-align:center;" ><input style="text-align: center" type="number" name="nilai_akhir" id="nilaiAkhir" class="form-control" readonly></td>
+                                    <input type="hidden" name="grade" value="{{ $kpi->grade }}">
+                                    <td rowspan="{{ $jumlahKedisiplinan + 3}}"  style="vertical-align : middle;text-align:center;"><input style="text-align: center" type="text" name="grade" id="grade" class="form-control" value="{{ $kpi->grade }}" readonly></td>
+                                    <input type="hidden" name="nilai_akhir" value="{{ $kpi->nilai_akhir }}">
+                                    <td rowspan="{{ $jumlahKedisiplinan + 3}}" style="vertical-align : middle;text-align:center;" ><input style="text-align: center" type="number" name="nilai_akhir" id="nilaiAkhir" class="form-control" value="{{ $kpi->nilai_akhir }}" readonly></td>
 
                                 @endif
                                 </tr>
@@ -335,17 +341,17 @@
                         <td>Catatan:</td>
                     </tr>
                     <tr>
-                        <td><textarea name="kelebihan" id="kelebihan" class="form-control"></textarea></td>
+                        <td><textarea name="kelebihan" id="kelebihan" class="form-control"> {{ $kpi->kelebihan }} </textarea></td>
                         <td style="text-align: center">Pekerja yang mendapat Surat Teguran atau sedang menjalani masa hukuman tidak berhak mendapat Final Grade "B"</td>
                         <td style="align-content: flex-end"><button type="submit" class="btn btn-success"><i class="bi bi-save"></i> Simpan</button></td>
                     </tr>
                     <tr>
                         <td>Improvement:</td>
                         <td></td>
-                        <td><button type="submit" class="btn btn-warning" style="color: white" name="ajukan" value="1" onclick="return validateForm()"><i class="bi bi-send-check" style="color: white"></i>  Ajukan</button></td>
+                        <td><button type="submit" class="btn btn-success" style="color: white" name="approve" value="1" onclick="return validateForm()"><i class="bi bi-check2-square" style="color: white"></i>  Approve</button></td>
                     </tr>
                     <tr>
-                        <td><textarea name="improvement" id="improvement" class="form-control"></textarea></td>
+                        <td><textarea name="improvement" id="improvement" class="form-control"> {{ $kpi->improvement }} </textarea></td>
                         <td></td> {{-- Sel kosong --}}
                         {{-- <td><button type="submit" class="btn btn-primary" name="download"><i class="bi bi-download"></i>  Download</button></td> --}}
                     </tr>
@@ -510,28 +516,30 @@
             nilaiAkhirInput.addEventListener('input', updateGrade);
 
             function validateForm() {
-                const nilaiSpvSelects = document.querySelectorAll('.nilai_spv');
-                let hasEmptyNilaiSpv = false;
+                const nilaiManagerSelects = document.querySelectorAll('.nilai_manager');
+                let hasEmptyNilaiManager = false;
 
-                nilaiSpvSelects.forEach(select => {
+                nilaiManagerSelects.forEach(select => {
                     if (select.value === '') {
-                        hasEmptyNilaiSpv = true;
+                        hasEmptyNilaiManager = true;
                     }
                 });
 
-                if (hasEmptyNilaiSpv) {
-                    alert('Nilai SPV masih ada yang kosong. Mohon lengkapi terlebih dahulu.');
+                if (hasEmptyNilaiManager) {
+                    alert('Nilai Manager masih ada yang kosong. Mohon lengkapi terlebih dahulu.');
                     return false; // Mencegah form disubmit
                 }
 
 
-                document.getElementById('status').value = 'Review Manager'; // Set status menjadi 'Review Manager'
+                document.getElementById('status').value = 'Approved'; // Set status menjadi 'Approved'
 
 
 
                 return true; // Melanjutkan submit form
 
         }
+
+
             </script>
 
             <!-- Bootstrap JS -->

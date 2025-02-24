@@ -11,7 +11,7 @@ class MdSkalapenilaian extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $table = 'md_skala_penilaian';
+    protected $table = 'md_skalapenilaian';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'string';

@@ -3,6 +3,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\MdPegawai;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -81,6 +82,6 @@ class LoginController extends Controller
     // app/Models/User.php
     public function pegawai()
     {
-        return $this->belongsTo(MdPegawai::class, 'id_pegawai'); // Sesuaikan nama kolom foreign key
+        return view('dashboardpegawai');  // Pastikan Anda memiliki view dashboard_karyawan.blade.php
     }
 }

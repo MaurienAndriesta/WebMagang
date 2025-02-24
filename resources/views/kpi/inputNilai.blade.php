@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Data Penilaian Karyawan</title>
+    <title>Master Data Bidang</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <style>
@@ -158,11 +158,9 @@
                             <input type="text" name="search" class="form-control" placeholder="Cari..." value="{{ request('search') }}">
                             <button type="submit" class="btn btn-white ms-0"><i class="bi bi-search"></i></button>
                         </form>
-                        @if ($userRole == 'spv')
                         <button class="btn btn-primary" onclick="window.location.href='{{ route('kpi.create') }}'">
                             + Tambah
                         </button>
-                        @endif
                     </div>
                 </div>  <!-- End of inner card -->
 
@@ -177,40 +175,27 @@
                         </tr>
                     </thead>
                     <tbody>
-                    @forelse ($kpis as $kpi)
+                    @foreach ($kpis as $kpi)
                         <tr>
                             <td style="text-align: center">{{ $loop->iteration }}</td>
                             <td>{{ $kpi->pegawai->nama }}</td>
                             <td>{{ $kpi->pegawai->jabatan }}</td>
                             <td>{{ $kpi->pegawai->bidang->nama }}</td>
                             <td>{{ $kpi->status }}
-                                <div class="action-icons">
-                                    @if ($userRole == 'spv' && $kpi->status == 'Review SPV')
-                                        <button class="btn btn-sm btn-outline-primary" onclick="window.location.href='{{ route('kpi.editspv', $kpi->id) }}'">
-                                            <i class="bi bi-pencil-square"></i>
-                                        </button>
+                            @if ($kpi->status != 'Approved' && in_array($userRole, ['SPV', 'Manager']))
+                                        <a href="{{ route('kpi.inputNilai', $kpi->id) }}">Input Nilai</a>
+                                    @elseif ($kpi->status == 'Approved')
+                                        <a href="{{ route('kpi.download', $kpi->id) }}">Download</a>
                                     @endif
-                                    @if ($userRole == 'manager' && $kpi->status == 'Review Manager')
-                                        <button class="btn btn-sm btn-outline-primary" onclick="window.location.href='{{ route('kpi.editmanager', $kpi->id) }}'">
-                                            <i class="bi bi-pencil-square"></i>
-                                        </button>
-                                    @endif
-                                    <form action="{{ route('kpi.destroy', $kpi->id) }}" method="POST" class="d-inline">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Yakin ingin menghapus data ini?')">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                    </form>
-                                </div>
-                            </td>
 
+                                    @if ($kpi->status == 'Review SPV' && $userRole == 'SPV')
+                                        <a href="{{ route('kpi.ajukan', $kpi) }}">Ajukan</a>  {{-- Menggunakan route model binding --}}
+                                    @elseif ($kpi->status == 'Review Manager' && $userRole == 'Manager')
+                                        <a href="{{ route('kpi.approve', $kpi) }}">Approve</a> {{-- Menggunakan route model binding --}}
+                                    @endif
+                                    </td>
                             </tr>
-                            @empty
-                            <tr>
-                                <td colspan="5" class="text-center">Data Tidak Ditemukan</td> </div>
-                            </tr>
-                        @endforelse
+                        @endforeach
                     </tbody>
                 </table>
             </div>
