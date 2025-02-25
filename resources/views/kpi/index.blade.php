@@ -136,10 +136,30 @@
             <img src="img/LOGO.jpg" alt="PLN Icon Plus">
         </div>
         <div class="nav-buttons">
-            <button class="home-button" onclick="window.location.href='{{ url('/dashboardspv') }}'">Home</button>
-            <button class="kpi-button" onclick="window.location.href='{{ url('/kpi') }}'">KPI</button>
-            <button class="logout-button" onclick="window.location.href='{{ url('/') }}'">Logout</button>
-        </div>
+    @php
+        $homeUrl = '/';
+        if (auth()->check()) {
+            switch (auth()->user()->role) {
+                case 'spv':
+                    $homeUrl = '/dashboardspv';
+                    break;
+                case 'manager':
+                    $homeUrl = '/dashboardmanager';
+                    break;
+                case 'admin':
+                    $homeUrl = '/dashboardadmin';
+                    break;
+                case 'staff':
+                    $homeUrl = '/dashboardpegawai';
+                    break;
+            }
+        }
+    @endphp
+
+    <button class="home-button" onclick="window.location.href='{{ url($homeUrl) }}'">Home</button>
+    <button class="kpi-button" onclick="window.location.href='{{ url('/kpi') }}'">KPI</button>
+    <button class="logout-button" onclick="window.location.href='{{ url('/') }}'">Logout</button>
+</div>
     </div>
 
     <div class="container mt-4">
@@ -158,7 +178,7 @@
                             <input type="text" name="search" class="form-control" placeholder="Cari..." value="{{ request('search') }}">
                             <button type="submit" class="btn btn-white ms-0"><i class="bi bi-search"></i></button>
                         </form>
-                        @if ($userRole == 'spv')
+                        @if ($userRole == 'supervisor')
                         <button class="btn btn-primary" onclick="window.location.href='{{ route('kpi.create') }}'">
                             + Tambah
                         </button>
@@ -185,7 +205,7 @@
                             <td>{{ $kpi->pegawai->bidang->nama }}</td>
                             <td>{{ $kpi->status }}
                                 <div class="action-icons">
-                                    @if ($userRole == 'spv' && $kpi->status == 'Review SPV')
+                                    @if ($userRole == 'supervisor' && $kpi->status == 'Review SPV')
                                         <button class="btn btn-sm btn-outline-primary" onclick="window.location.href='{{ route('kpi.editspv', $kpi->id) }}'">
                                             <i class="bi bi-pencil-square"></i>
                                         </button>
@@ -195,13 +215,20 @@
                                             <i class="bi bi-pencil-square"></i>
                                         </button>
                                     @endif
-                                    <form action="{{ route('kpi.destroy', $kpi->id) }}" method="POST" class="d-inline">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Yakin ingin menghapus data ini?')">
-                                            <i class="bi bi-trash"></i>
+                                    @if ($kpi->status == 'Approved')
+                                        <button class="btn btn-sm btn-outline-primary" onclick="window.location.href='{{ route('kpi.final', $kpi->id) }}'">
+                                            <i class="bi bi-eye"></i>
                                         </button>
-                                    </form>
+                                    @endif
+                                    @if (($userRole == 'supervisor' && $kpi->status == 'Review SPV') || ($userRole == 'manager' && $kpi->status == 'Review Manager'))
+                                        <form action="{{ route('kpi.destroy', $kpi->id) }}" method="POST" class="d-inline">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Yakin ingin menghapus data ini?')">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    @endif
                                 </div>
                             </td>
 

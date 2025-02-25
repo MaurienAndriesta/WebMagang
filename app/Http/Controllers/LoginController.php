@@ -31,7 +31,7 @@ class LoginController extends Controller
             $role = Auth::user()->role;
             if ($role == 'admin') {
                 return redirect()->route('dashboardadmin');
-            } elseif ($role == 'spv') {
+            } elseif ($role == 'supervisor') {
                 return redirect()->route('dashboardspv');
             } elseif ($role == 'manager') {
                 return redirect()->route('dashboardmanager');
@@ -62,7 +62,7 @@ class LoginController extends Controller
         return view('dashboardadmin');  // Pastikan Anda memiliki view dashboard_admin.blade.php
     }
 
-    // Dashboard untuk SPV
+    //Dashboard untuk SPV
     public function spv()
     {
         return view('dashboardspv');  // Pastikan Anda memiliki view dashboard_spv.blade.php

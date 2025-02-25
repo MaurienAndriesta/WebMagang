@@ -16,7 +16,7 @@ class Trskpi extends Model
     public $incrementing = false;
     protected $keyType = 'string';
     protected $fillable = ['id', 'id_pegawai', 'id_penilai', 'nilai_akhir', 'status',
-                                'grade', 'improvement', 'kelebihan', 'semester', 'tahun',
+                                'grade', 'improvement', 'kelebihan', 'semester', 'tanggal_penilaian', 'tahun',
                                 'created_by', 'updated_by', 'deleted_by'];
 
     protected static function boot()

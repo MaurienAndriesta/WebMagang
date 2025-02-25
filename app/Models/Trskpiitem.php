@@ -15,7 +15,7 @@ class Trskpiitem extends Model
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'string';
-    protected $fillable = ['id', 'id_kpi', 'id_penilaian', 'catatan', 'nilai_spv', 'nilai_manager', 'created_by', 'updated_by', 'deleted_by'];
+    protected $fillable = ['id', 'id_kpi', 'id_penilaian', 'catatan', 'nilai_spv', 'nilai_manager', 'hari', 'created_by', 'updated_by', 'deleted_by'];
 
 
     protected static function boot()

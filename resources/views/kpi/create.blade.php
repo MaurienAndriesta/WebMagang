@@ -163,7 +163,7 @@
                                     <td>
                                         <select name="id_pegawai" id="id_pegawai" class="form-control" onchange="updateDetails()">
                                             @foreach ($pegawai->where('jabatan', 'Staff') as $p)
-                                                <option value="{{ $p->id }}" data-jabatan="{{ $p->jabatan }}" data-bidang="{{ $p->bidang->nama }}" data-masakerja="{{ $p->masakerja }}" data-atasan="{{ $p->atasan ? $p->atasan->id : '' }}">{{ $p->nama }}</option>
+                                                <option value="{{ $p->id }}" data-jabatan="{{ $p->jabatan }}" data-bidang="{{ $p->bidang->nama }}" data-subbidang="{{ $p->subbidang->nama }}" data-masakerja="{{ $p->masakerja }}" data-atasan="{{ $p->atasan ? $p->atasan->id : '' }}">{{ $p->nama }}</option>
                                             @endforeach
                                         </select>
                                     </td>
@@ -183,7 +183,10 @@
                                     </td>
                                     <td>Periode Penilaian</td>
                                     <td>:</td>
-                                    <td><input type="number" name="tahun" id="tahun" class="form-control" min="2000" placeholder="Masukan Tahun" required></td>
+                                    <td><input type="number" name="tahun" id="tahun" class="form-control @error('tahun') is-invalid @enderror" min="2000" placeholder="Masukan Tahun" required></td>
+                                    @error('tahun')
+                                        <div class="text-danger">{{'Periode penilaian untuk pegawai ini sudah ada'}}</div>
+                                    @enderror
                                     <td><select name="semester" id="semester" class="form-control" aria-placeholder="Semester" required>
                                         <option value="1">1</option>
                                         <option value="2">2</option>
@@ -206,9 +209,9 @@
                                     <td>
                                         <input type="text" name="masa_kerja" id="masa_kerja" class="form-control" readonly>
                                     </td>
-                                    <td>Sub Dir</td>
+                                    <td>Sub Bidang</td>
                                     <td>:</td>
-                                    <td colspan="2"><input type="text" name="sub_dir" id="sub_dir" class="form-control" required></td>
+                                    <td colspan="2"><input type="text" name="sub_bidang" id="sub_bidang" class="form-control" readonly></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -303,7 +306,8 @@
                                 <tr>
                                     <td>{{ $item->nama }}</td>
                                     <td>
-                                        <input style="text-align: center" type="number" name="kedisiplinan[{{ $item->id }}][nilai_spv]" class="form-control hari" data-bobot="{{ $item->bobot }}" value="0"> </td>
+                                        <input style="text-align: center" type="number" name="kedisiplinan[{{ $item->id }}][hari]" class="form-control hari" data-bobot="{{ $item->bobot }}" value="0"> </td>
+                                        <input type="hidden" id="hariSuratTeguran" value="{{ $hariSuratTeguran }}">
                                     <td>
                                         <input style="text-align: center" type="number" name="kedisiplinan[{{ $item->id }}][penalty_score]" class="form-control penalty-score" data-bobot="{{ $item->bobot }}" value="0" readonly></td>
                                     @if ($loop->first)  {{-- Hanya tampilkan di baris pertama --}}
@@ -366,6 +370,7 @@
                     const selectPegawai = document.getElementById('id_pegawai');
                     const jabatanInput = document.getElementById('jabatan');
                     const bidangInput = document.getElementById('bidang');
+                    const subbidangInput = document.getElementById('sub_bidang');
                     const masaKerjaInput = document.getElementById('masa_kerja');
 
                     // Kosongkan dropdown penilai
@@ -390,12 +395,14 @@
                         jabatanInput.value = selectedOption.dataset.jabatan || '';
                         bidangInput.value = selectedOption.dataset.bidang || '';
                         masaKerjaInput.value = selectedOption.dataset.masakerja || '';
+                        subbidangInput.value = selectedOption.dataset.subbidang || '';
 
 
                     }else {
                         // Reset nilai jika tidak ada pegawai yang dipilih
                         jabatanInput.value = '';
                         bidangInput.value = '';
+                        subbidangInput.value = '';
                         masaKerjaInput.value = '';
 
 
@@ -490,10 +497,11 @@
             }
             function updateGrade() {
                 const nilaiAkhir = parseFloat(nilaiAkhirInput.value) || 0;
+                const hariSuratTeguran = parseInt(document.getElementById('hariSuratTeguran').value) || 0;
                 let grade = '';
 
                 // Tentukan grade berdasarkan nilai akhir
-                if (nilaiAkhir < 0) {
+                if (nilaiAkhir <= 0) {
                     grade = 'Nilai Tidak Valid';
                 } else {
                     @foreach($nilaiAkhirRentang as $rentang)
@@ -501,6 +509,10 @@
                             grade = '{{ $rentang->grade }}';
                         }
                     @endforeach
+                }
+                // Jika pekerja memiliki Surat Teguran minimal 1 hari dan grade >= B, turunkan ke C
+                if (hariSuratTeguran >= 1 && (grade === 'A' || grade === 'B')) {
+                    grade = 'C';
                 }
 
                 document.getElementById('grade').value = grade;
@@ -525,13 +537,24 @@
                 }
 
 
-                document.getElementById('status').value = 'Review Manager'; // Set status menjadi 'Review Manager'
+                document.getElementById('status').value = 'Review Manager'; // Set status_kpi menjadi 'Review Manager'
 
 
 
                 return true; // Melanjutkan submit form
 
         }
+
+        document.querySelectorAll('.hari').forEach(input => {
+            input.addEventListener('input', function() {
+                if (this.closest('tr').querySelector('td:first-child').innerText.trim() === "Surat Teguran") {
+                    document.getElementById('hariSuratTeguran').value = parseInt(this.value) || 0;
+                }
+                updateGrade(); // Perbarui grade setiap kali input berubah
+            });
+        });
+
+
             </script>
 
             <!-- Bootstrap JS -->

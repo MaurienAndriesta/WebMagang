@@ -119,7 +119,7 @@
             <img src="{{ asset('img/LOGO.jpg') }}" alt="PLN Icon Plus">
         </div>
         <div class="nav-buttons">
-            <button class="home-button" onclick="window.location.href='{{ url('/dashboardspv') }}'">Home</button>
+            <button class="home-button" onclick="window.location.href='{{ url('/dashboardmanager') }}'">Home</button>
             <button class="kpi-button" onclick="window.location.href='{{ url('/kpi') }}'">KPI</button>
             <button class="logout-button" onclick="window.location.href='{{ url('/') }}'">Logout</button>
         </div>
@@ -164,7 +164,7 @@
                                     <td>
                                         <select name="id_pegawai" id="id_pegawai" class="form-control" onchange="updateDetails()">
                                             @foreach ($pegawai->where('jabatan', 'Staff') as $p)
-                                                <option value="{{ $p->id }}" data-jabatan="{{ $p->jabatan }}" data-bidang="{{ $p->bidang->nama }}" data-masakerja="{{ $p->masakerja }}" data-atasan="{{ $p->atasan ? $p->atasan->id : '' }}" {{ $kpi->id_pegawai == $p->id ? 'selected' : '' }}>{{ $p->nama }}</option>
+                                                <option value="{{ $p->id }}" data-jabatan="{{ $p->jabatan }}" data-bidang="{{ $p->bidang->nama }}" data-subbidang="{{ $p->subbidang->nama }}" data-masakerja="{{ $p->masakerja }}" data-atasan="{{ $p->atasan ? $p->atasan->id : '' }}" {{ $kpi->id_pegawai == $p->id ? 'selected' : '' }}>{{ $p->nama }}</option>
                                             @endforeach
                                         </select>
                                     </td>
@@ -184,7 +184,10 @@
                                     </td>
                                     <td>Periode Penilaian</td>
                                     <td>:</td>
-                                    <td><input type="number" name="tahun" id="tahun" class="form-control" min="2000" placeholder="Masukan Tahun" value="{{ $kpi->tahun }}" required></td>
+                                    <td><input type="number" name="tahun" id="tahun" class="form-control @error('tahun') is-invalid @enderror" min="2000" placeholder="Masukan Tahun" value="{{ $kpi->tahun }}" required></td>
+                                    @error('tahun')
+                                    <div class="text-danger">{{ 'Periode penilaian untuk pegawai ini sudah ada' }}</div>
+                                    @enderror
                                     <td><select name="semester" id="semester" class="form-control" aria-placeholder="Semester" required>
                                         <option value="1" {{ $kpi->semester == 1 ? 'selected' : '' }}>1</option>
                                         <option value="2" {{ $kpi->semester == 2 ? 'selected' : '' }}>2</option>
@@ -199,7 +202,7 @@
                                     </td>
                                     <td>Tanggal Penilaian</td>
                                     <td>:</td>
-                                    <td colspan="2"><input type="date" name="tanggal_penilaian" id="tanggal" class="form-control" required></td>
+                                    <td colspan="2"><input type="date" name="tanggal_penilaian" id="tanggal" class="form-control" value="{{ $kpi->tanggal_penilaian }}" required></td>
                                 </tr>
                                 <tr>
                                     <td>Masa Kerja</td>
@@ -207,9 +210,9 @@
                                     <td>
                                         <input type="text" name="masa_kerja" id="masa_kerja" class="form-control" readonly>
                                     </td>
-                                    <td>Sub Dir</td>
+                                    <td>Sub Bidang</td>
                                     <td>:</td>
-                                    <td colspan="2"><input type="text" name="sub_dir" id="sub_dir" class="form-control" required></td>
+                                    <td colspan="2"><input type="text" name="sub_bidang" id="sub_bidang" class="form-control" readonly></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -259,14 +262,14 @@
                                         </select>
                                     </td>
                                     <td>
-                                        <select name="items[{{ $item->id }}][nilai_manager]" class="form-control nilai_manager" data-bobot="{{ $item->bobot }}" >
+                                        <select name="items[{{ $item->id }}][nilai_manager]" class="form-control nilai_manager" data-bobot="{{ $item->bobot }}">
                                             <option style="text-align: center" value="">Pilih Nilai Manager</option>
                                             @foreach ($skalaPenilaian as $skala)
                                                 <option value="{{ $skala->angka }}" {{ $kpiItem && $kpiItem->nilai_manager == $skala->angka ? 'selected' : '' }}>{{ $skala->angka }} - {{ $skala->keterangan }}</option>
                                             @endforeach
                                         </select>
                                     </td>
-                                    <td><input  style="text-align: center" type="number" name="items[{{ $item->id }}][score]" class="form-control score" data-bobot="{{ $item->bobot }}" readonly></td>
+                                    <td><input  style="text-align: center" type="number" name="items[{{ $item->id }}][score]" class="form-control score" data-bobot="{{ $item->bobot }}" value="{{ $item->bobot * ($kpiItem->nilai_spv + $kpiItem->nilai_manager)/2 }}" readonly></td>
                                     <td><textarea style="width: 100%" name="items[{{ $item->id }}][catatan]">{{ $kpiItem ? $kpiItem->catatan : '' }}</textarea></td>
                                 </tr>
                             @endforeach
@@ -309,9 +312,11 @@
                                 <tr>
                                     <td>{{ $item->nama }}</td>
                                     <td>
-                                        <input style="text-align: center" type="number" name="kedisiplinan[{{ $item->id }}][nilai_spv]" class="form-control hari" data-bobot="{{ $item->bobot }}" value="{{ $kpiItemKedisiplinan ? $kpiItemKedisiplinan->nilai_spv : '0'}}"> </td>
+                                        <input type="hidden" name="kedisiplinan[{{ $item->id }}][hari]" value="{{ $kpiItemKedisiplinan->hari ?? '' }}">
+                                        <input style="text-align: center" type="number" name="kedisiplinan[{{ $item->id }}][hari]" class="form-control hari" data-bobot="{{ $item->bobot }}" value="{{ $kpiItemKedisiplinan ? $kpiItemKedisiplinan->hari : '0'}}" disabled> </td>
+                                        <input type="hidden" id="hariSuratTeguran" value="{{ $hariSuratTeguran }}">
                                     <td>
-                                        <input style="text-align: center" type="number" name="kedisiplinan[{{ $item->id }}][penalty_score]" class="form-control penalty-score" data-bobot="{{ $item->bobot }}" value="{{ $kpiItemKedisiplinan ? $kpiItemKedisiplinan->penalty_score : '0'}}" readonly></td>
+                                        <input style="text-align: center" type="number" name="kedisiplinan[{{ $item->id }}][penalty_score]" class="form-control penalty-score" data-bobot="{{ $item->bobot }}" value="{{ $item->bobot * $kpiItemKedisiplinan->hari }}" readonly></td>
                                     @if ($loop->first)  {{-- Hanya tampilkan di baris pertama --}}
                                     <td rowspan="{{ $jumlahKedisiplinan + 3}}" style="vertical-align : middle;text-align:center;">  {{-- rowspan dinamis --}}
                                         <input style="text-align: center" type="number" name="total_penalty_score" id="totalPenaltyScore" class="form-control" value="{{ $kpi->total_penalty_score }}" readonly>
@@ -348,7 +353,7 @@
                     <tr>
                         <td>Improvement:</td>
                         <td></td>
-                        <td><button type="submit" class="btn btn-success" style="color: white" name="approve" value="1" onclick="return validateForm()"><i class="bi bi-check2-square" style="color: white"></i>  Approve</button></td>
+                        <td><button type="submit" class="btn btn-outline-success" style="color: white;background-color: #2ECC71" name="approve" value="1" onclick="return validateForm()"><i class="bi bi-check2-square" style="color: white"></i>  Approve</button></td>
                     </tr>
                     <tr>
                         <td><textarea name="improvement" id="improvement" class="form-control"> {{ $kpi->improvement }} </textarea></td>
@@ -372,6 +377,7 @@
                     const selectPegawai = document.getElementById('id_pegawai');
                     const jabatanInput = document.getElementById('jabatan');
                     const bidangInput = document.getElementById('bidang');
+                    const subbidangInput = document.getElementById('sub_bidang');
                     const masaKerjaInput = document.getElementById('masa_kerja');
 
                     // Kosongkan dropdown penilai
@@ -395,6 +401,7 @@
                     if (selectedOption) {
                         jabatanInput.value = selectedOption.dataset.jabatan || '';
                         bidangInput.value = selectedOption.dataset.bidang || '';
+                        subbidangInput.value = selectedOption.dataset.subbidang || '';
                         masaKerjaInput.value = selectedOption.dataset.masakerja || '';
 
 
@@ -402,6 +409,7 @@
                         // Reset nilai jika tidak ada pegawai yang dipilih
                         jabatanInput.value = '';
                         bidangInput.value = '';
+                        subbidangInput.value = '';
                         masaKerjaInput.value = '';
 
 
@@ -488,7 +496,7 @@
                 }
 
 
-                function updateNilaiAkhir() {
+            function updateNilaiAkhir() {
                 const totalScore = parseFloat(totalScoreInput.value) || 0;
                 const totalPenalty = parseFloat(totalPenaltyScoreInput.value) || 0;
                 const nilaiAkhir = totalScore - totalPenalty;
@@ -496,10 +504,11 @@
             }
             function updateGrade() {
                 const nilaiAkhir = parseFloat(nilaiAkhirInput.value) || 0;
+                const hariSuratTeguran = parseInt(document.getElementById('hariSuratTeguran').value) || 0;
                 let grade = '';
 
                 // Tentukan grade berdasarkan nilai akhir
-                if (nilaiAkhir < 0) {
+                if (nilaiAkhir <= 0) {
                     grade = 'Nilai Tidak Valid';
                 } else {
                     @foreach($nilaiAkhirRentang as $rentang)
@@ -507,6 +516,10 @@
                             grade = '{{ $rentang->grade }}';
                         }
                     @endforeach
+                }
+                // Jika pekerja memiliki Surat Teguran minimal 1 hari dan grade >= B, turunkan ke C
+                if (hariSuratTeguran >= 1 && (grade === 'A' || grade === 'B')) {
+                    grade = 'C';
                 }
 
                 document.getElementById('grade').value = grade;
@@ -531,13 +544,31 @@
                 }
 
 
-                document.getElementById('status').value = 'Approved'; // Set status menjadi 'Approved'
+                document.getElementById('status').value = 'Approved'; // Set status_kpi menjadi 'Approved'
 
 
 
                 return true; // Melanjutkan submit form
 
         }
+
+        document.querySelectorAll('.hari').forEach(input => {
+            input.addEventListener('input', function() {
+                if (this.closest('tr').querySelector('td:first-child').innerText.trim() === "Surat Teguran") {
+                    document.getElementById('hariSuratTeguran').value = parseInt(this.value) || 0;
+                }
+                updateGrade(); // Perbarui grade setiap kali input berubah
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+        updateTotalScore();
+        updateTotalPenaltyScore()
+        updateGrade() //panggil updateGrade() juga untuk menginisialisasi grade
+        updateNilaiAkhir()
+
+
+    });
 
 
             </script>

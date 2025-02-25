@@ -106,23 +106,16 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboardpegawai', [LoginController::class, 'pegawai'])->name('dashboardpegawai');
 });
 
-// Download PDF
-Route::get('/pdf', [PdfController::class, 'generatePDF']);
-Route::get('/kpi', [MdPegawaiController::class, 'kpi'])->name('kpi.index'); // Menampilkan daftar KPI
-
 
 // KPI Routes
 Route::middleware('auth')->group(function () {
     Route::get('/kpi', [KPIController::class, 'index'])->name('kpi.index');
     Route::get('/kpi/create', [KPIController::class, 'create'])->name('kpi.create');
     Route::post('/kpi/store', [KPIController::class, 'store'])->name('kpi.store');
-    // Route::get('/kpi/manager', [KPIController::class, 'create'])->name('kpi.manager');
-    Route::get('/kpi/pegawai', [KPIController::class, 'pegawai'])->name('kpi.pegawai');
-    // routes/web.php
     Route::get('/kpi/{kpi}/editspv', [KPIController::class, 'editspv'])->name('kpi.editspv');
     Route::get('/kpi/{kpi}/editmanager', [KPIController::class, 'editmanager'])->name('kpi.editmanager');
+    Route::get('/kpi/{kpi}/final', [KPIController::class, 'final'])->name('kpi.final');
     Route::put('/kpi/{kpi}', [KPIController::class, 'update'])->name('kpi.update');
-    Route::get('/kpi/{kpi}/download', [KPIController::class, 'download'])->name('kpi.download');
+    Route::get('/kpi/{id}/download', [KPIController::class, 'downloadPDF'])->name('kpi.download');
     Route::delete('/kpi/{id}', [KPIController::class, 'destroy'])->name('kpi.destroy');
-    // routes/web.php
 });

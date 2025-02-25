@@ -12,7 +12,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
-use PDF;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Validation\Rule;
 
 class KPIController extends Controller
 {
@@ -41,14 +42,18 @@ class KPIController extends Controller
         $user = Auth::user();
         $skalaPenilaian = MdSkalapenilaian::all(); // Ambil data skala penilaian
         $nilaiAkhirRentang = MdNilaiakhir::all();
-
-
-        return view('kpi.create', compact('pegawai', 'penilaianItems', 'user', 'skalaPenilaian', 'nilaiAkhirRentang')); // Pass ke view
+        $hariSuratTeguran = TrsKpiItem::whereHas('penilaian', function ($query) {
+            $query->where('nama', 'Surat Teguran');
+        })
+        ->where('id_kpi', $kpi->id ?? null) // Ambil berdasarkan KPI jika edit
+        ->value('hari') ?? 0; // Jika tidak ada, default 0
+        return view('kpi.create', compact('pegawai', 'penilaianItems', 'user', 'skalaPenilaian', 'nilaiAkhirRentang', 'hariSuratTeguran')); // Pass ke view
 
     }
 
     public function editspv(TrsKpi $kpi)
     {
+        // dd($kpi);
         $pegawai = MdPegawai::all();
     $penilaianItems = MdPenilaian::all();
     $skalaPenilaian = MdSkalapenilaian::all();
@@ -60,13 +65,19 @@ class KPIController extends Controller
         abort(404, 'Pegawai tidak ditemukan.');
     }
     $userRole = Auth::user()->role;
-    if ($userRole == 'spv' && $kpi->status == 'Review Manager') {
+    if ($userRole == 'spv' && $kpi->status_kpi == 'Review Manager') {
         abort(403, 'Anda tidak dapat mengedit KPI yang sudah dalam status Review Manager.');
     }
 
     $namaAtasan = $kpi->penilai ? $kpi->penilai->nama : '-'; // Gunakan relasi penilai untuk mengambil nama atasan
+    $hariSuratTeguran = TrsKpiItem::whereHas('penilaian', function ($query) {
+        $query->where('nama', 'Surat Teguran');
+    })
+    ->where('id_kpi', $kpi->id ?? null) // Ambil berdasarkan KPI jika edit
+    ->value('hari') ?? 0; // Jika tidak ada, default 0
 
-    return view('kpi.editspv', compact('kpi', 'pegawai', 'penilaianItems', 'skalaPenilaian', 'nilaiAkhirRentang', 'namaAtasan', 'user'));
+
+    return view('kpi.editspv', compact('kpi', 'pegawai', 'penilaianItems', 'skalaPenilaian', 'nilaiAkhirRentang', 'namaAtasan', 'user', 'hariSuratTeguran'));
 
 
     }
@@ -84,36 +95,83 @@ class KPIController extends Controller
         abort(404, 'Pegawai tidak ditemukan.');
     }
     $userRole = Auth::user()->role;
-    if ($userRole == 'manager' && $kpi->status == 'Approved') {
+    if ($userRole == 'manager' && $kpi->status_kpi == 'Approved') {
         abort(403, 'Anda tidak dapat mengedit KPI yang sudah dalam status Approved.');
     }
 
     $namaAtasan = $kpi->penilai ? $kpi->penilai->nama : '-'; // Gunakan relasi penilai untuk mengambil nama atasan
+    $hariSuratTeguran = TrsKpiItem::whereHas('penilaian', function ($query) {
+        $query->where('nama', 'Surat Teguran');
+    })
+    ->where('id_kpi', $kpi->id ?? null) // Ambil berdasarkan KPI jika edit
+    ->value('hari') ?? 0; // Jika tidak ada, default 0
 
-    return view('kpi.editmanager', compact('kpi', 'pegawai', 'penilaianItems', 'skalaPenilaian', 'nilaiAkhirRentang', 'namaAtasan', 'user'));
 
+    return view('kpi.editmanager', compact('kpi', 'pegawai', 'penilaianItems', 'skalaPenilaian', 'nilaiAkhirRentang', 'namaAtasan', 'user', 'hariSuratTeguran'));
+
+    }
+
+    public function final(TrsKpi $kpi)
+    {
+        $pegawai = MdPegawai::all();
+    $penilaianItems = MdPenilaian::all();
+    $skalaPenilaian = MdSkalapenilaian::all();
+    $nilaiAkhirRentang = MdNilaiAkhir::all();
+    $user = Auth::user();
+
+    // Pastikan $kpi->pegawai tidak null
+    if (!$kpi->pegawai) {
+        abort(404, 'Pegawai tidak ditemukan.');
+    }
+    $userRole = Auth::user()->role;
+
+    $namaAtasan = $kpi->penilai ? $kpi->penilai->nama : '-'; // Gunakan relasi penilai untuk mengambil nama atasan
+    $hariSuratTeguran = TrsKpiItem::whereHas('penilaian', function ($query) {
+        $query->where('nama', 'Surat Teguran');
+    })
+    ->where('id_kpi', $kpi->id ?? null) // Ambil berdasarkan KPI jika edit
+    ->value('hari') ?? 0; // Jika tidak ada, default 0
+
+    return view('kpi.final', compact('kpi', 'pegawai', 'penilaianItems', 'skalaPenilaian', 'nilaiAkhirRentang', 'namaAtasan', 'user', 'hariSuratTeguran'));
 
     }
 
     public function store(Request $request)
 {
+    // $isExistData = TrsKpi::where('id_pegawai', $request->id_pegawai)
+    //                         ->where('tahun', $request->tahun)
+    //                         ->where('semester', $request->semester)
+    //                         ->exists();
+
+    // if ($isExistData) {
+    //     return redirect()->back()->withErrors(['id_pegawai' => 'Data KPI untuk pegawai, tahun, dan semester ini sudah ada.']);
+    // }
+
      // Debugging: Cek data yang diterima
      Log::info('Data yang diterima:', $request->all());
      try {
      $validatedData = $request->validate([
         'id_pegawai' => 'required|uuid|exists:md_pegawai,id',
         'id_penilai' => 'required|uuid|exists:md_pegawai,id',
-        'tahun' => 'required|numeric',
+        'tahun' => [
+        'required',
+        'numeric',
+        Rule::unique('trs_kpi')->where(function ($query) use ($request) {
+            return $query->where('id_pegawai', $request->id_pegawai)
+                         ->where('semester', $request->semester);
+            })
+        ],
         'semester' => 'required|in:1,2',
+        'tanggal_penilaian' => 'required|date|before_or_equal:today',
         'items.*.nilai_spv' => 'sometimes|nullable|numeric',
         'items.*.nilai_manager' => 'sometimes|nullable|numeric',
         'items.*.catatan' => 'nullable|string',
-        'kedisiplinan.*.nilai_spv' => 'sometimes|nullable|numeric',
+        'kedisiplinan.*.hari' => 'sometimes|nullable|numeric',
         'improvement' => 'nullable|string',
         'kelebihan' => 'nullable|string',
         'nilai_akhir' => 'sometimes|nullable|numeric',
         'grade' => 'sometimes|nullable|string',
-        'status' => 'required|in:Review SPV, Review Manager, Approved',
+        'status_kpi' => 'required|in:Review SPV,Review Manager,Approved',
     ]);
      }catch (\Illuminate\Validation\ValidationException $e) {
         Log::error('Validasi gagal:', $e->errors());
@@ -130,11 +188,12 @@ class KPIController extends Controller
             'id_pegawai' => $validatedData['id_pegawai'],
             'tahun' => $validatedData['tahun'],
             'semester' => $validatedData['semester'],
+            'tanggal_penilaian' => $validatedData['tanggal_penilaian'],
             'improvement' => $validatedData['improvement'],
             'kelebihan' => $validatedData['kelebihan'],
             'nilai_akhir' => $validatedData['nilai_akhir'],
             'grade' => $validatedData['grade'],
-            'status' => $validatedData['status'],
+            'status_kpi' => $validatedData['status_kpi'],
             'id_penilai' => $validatedData['id_penilai'],
         ]);
 
@@ -156,10 +215,10 @@ class KPIController extends Controller
 
         // Simpan data ke tabel trs_kpi_item (kedisiplinan)
         foreach ($request->input('kedisiplinan', []) as $itemId => $itemData) {
-            TrsKpiItem::create([
+            $dt = TrsKpiItem::create([
                 'id_kpi' => $kpi->id,
                 'id_penilaian' => $itemId,
-                'nilai_spv' => $itemData['nilai_spv'],
+                'hari' => $itemData['hari'],
             ]);
         }
 
@@ -176,26 +235,42 @@ class KPIController extends Controller
 
 public function update(Request $request, $id)
     {
+    //     $isExistData = TrsKpi::where('id_pegawai', $request->id_pegawai)
+    //                         ->where('tahun', $request->tahun)
+    //                         ->where('semester', $request->semester)
+    //                         ->exists();
+
+    // if ($isExistData) {
+    //     return redirect()->back()->withErrors(['id_pegawai' => 'Data KPI untuk pegawai, tahun, dan semester ini sudah ada.']);
+    // }
         $user = Auth::user();
     $userRole = $user->role;
         Log::info('Data yang diterima untuk update KPI:', $request->all());
-        Log::info('Status KPI yang dikirimkan:', ['status' => $request->status]);
+        Log::info('Status KPI yang dikirimkan:', ['status_kpi' => $request->status_kpi]);
 
         try {
             $validatedData = $request->validate([
             'id_pegawai' => 'required|uuid|exists:md_pegawai,id',
             'id_penilai' => 'required|uuid|exists:md_pegawai,id',
-            'tahun' => 'required|numeric',
+            'tahun' => [
+            'required',
+            'numeric',
+            Rule::unique('trs_kpi')->where(function ($query) use ($request) {
+                return $query->where('id_pegawai', $request->id_pegawai)
+                            ->where('semester', $request->semester);
+                })->ignore($id),
+            ],
             'semester' => 'required|in:1,2',
-            'items.*.nilai_spv' => 'nullable|numeric',
-            'items.*.nilai_manager' => 'nullable|numeric',
+            'tanggal_penilaian' => 'required|date|before_or_equal:today',
+            'items.*.nilai_spv' => 'sometimes|nullable|numeric',
+            'items.*.nilai_manager' => 'sometimes|nullable|numeric',
             'items.*.catatan' => 'nullable|string',
-            'kedisiplinan.*.nilai_spv' => 'sometimes|nullable|numeric',
+            'kedisiplinan.*.hari' => 'sometimes|nullable|numeric',
             'improvement' => 'nullable|string',
             'kelebihan' => 'nullable|string',
             'nilai_akhir' => 'sometimes|nullable|numeric',
             'grade' => 'sometimes|nullable|string',
-            'status' => 'required|in:Review SPV,Review Manager,Approved',
+            'status_kpi' => 'required|in:Review SPV,Review Manager,Approved',
         ]);
         }catch (\Illuminate\Validation\ValidationException $e) {
         Log::error('Validasi gagal:', $e->errors());
@@ -208,10 +283,10 @@ public function update(Request $request, $id)
         $kpi = TrsKpi::findOrFail($id); // Pastikan KPI ditemukan
         Log::info('KPI ditemukan untuk update:', ['kpi_id' => $kpi->id]);
 
-        if ($userRole == 'spv' && $kpi->status == 'Review Manager') {
+        if ($userRole == 'spv' && $kpi->status_kpi == 'Review Manager') {
             return redirect()->route('kpi.index')->with('error', 'Anda tidak dapat mengedit KPI yang sudah dalam status Review Manager.');
         }
-        if ($userRole == 'manager' && $kpi->status == 'Approved') {
+        if ($userRole == 'manager' && $kpi->status_kpi == 'Approved') {
             return redirect()->route('kpi.index')->with('error', 'Anda tidak dapat mengedit KPI yang sudah dalam status Approved.');
         }
 
@@ -220,11 +295,12 @@ public function update(Request $request, $id)
             'id_penilai' => $request->id_penilai,
             'tahun' => $request->tahun,
             'semester' => $request->semester,
+            'tanggal_penilaian' => $request->tanggal_penilaian,
             'improvement' => $request->improvement,
             'kelebihan' => $request->kelebihan,
             'nilai_akhir' => $request->nilai_akhir,
             'grade' => $request->grade,
-            'status' => $request->status,
+            'status_kpi' => $request->status_kpi,
             'updated_by' => auth()->id()
         ]);
 
@@ -250,7 +326,7 @@ public function update(Request $request, $id)
                                 ->firstOrNew(); // firstOrCreate untuk membuat baru jika belum ada
 
 
-            $kpiItem->nilai_spv = $itemData['nilai_spv'];
+            $kpiItem->hari = $itemData['hari'];
             $kpiItem->save();
         }
 
@@ -261,32 +337,27 @@ public function update(Request $request, $id)
     }
 }
 
-    public function download(TrsKpi $kpi)
-    {
-        // Pastikan status KPI sudah 'Approved'
-        if ($kpi->status != 'Approved') {
-            abort(403, 'Laporan hanya bisa diunduh setelah penilaian disetujui.');
-        }
+public function downloadPDF($id)
+{
+    // Ambil data KPI berdasarkan ID
+    $kpi = TrsKpi::with(['pegawai', 'kpiItems.penilaian'])->findOrFail($id);
 
-        // Generate PDF menggunakan library seperti dompdf
-        $pdf = PDF::loadView('kpi.report', compact('kpi')); // Buat view kpi.report
-        return $pdf->download('laporan_kpi_'.$kpi->id.'.pdf');
-    }
+    // Siapkan data untuk view
+    $data = [
+        'kpi' => $kpi,
+        'pegawai' => $kpi->pegawai,
+        'penilaianItems' => MdPenilaian::all(), // Ambil semua penilaian items
+        'skalaPenilaian' => MdSkalapenilaian::all(), // Ambil semua skala penilaian
+        'nilaiAkhirRentang' => MdNilaiakhir::all(), // Ambil rentang nilai akhir
+    ];
 
-    public function pegawai(Request $request){
-        $user = Auth::user();
-        $role = Auth::user()->role;
-        $pegawai = MdPegawai::find($user->id_pegawai);  // Pastikan relasi ini ada
+    // Generate PDF
+    $pdf = PDF::loadView('kpi.pdf', $data);
 
-        $kpis = TrsKpi::with(['pegawai', 'pegawai.bidang', 'penilai'])->orderBy('created_at', 'desc');
+    // Download PDF
+    return $pdf->download('kpi.pdf');
+}
 
-        if ($role == 'staff') {
-            $kpis = $kpis->where('id_pegawai', $pegawai->id);
-        }
-        $kpis = $kpis->get();
-
-        return view('kpi.pegawai', compact('kpis', 'pegawai')); // Kirim $pegawai ke view
-    }
 
     public function destroy($id)
     {
@@ -297,4 +368,3 @@ public function update(Request $request, $id)
         return redirect()->route('kpi.index')->with('success', 'Data kpi berhasil dihapus');
     }
 }
-

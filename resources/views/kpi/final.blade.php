@@ -119,7 +119,27 @@
             <img src="{{ asset('img/LOGO.jpg') }}" alt="PLN Icon Plus">
         </div>
         <div class="nav-buttons">
-            <button class="home-button" onclick="window.location.href='{{ url('/dashboardspv') }}'">Home</button>
+            @php
+                $homeUrl = '/';
+                if (auth()->check()) {
+                    switch (auth()->user()->role) {
+                        case 'spv':
+                            $homeUrl = '/dashboardspv';
+                            break;
+                        case 'manager':
+                            $homeUrl = '/dashboardmanager';
+                            break;
+                        case 'admin':
+                            $homeUrl = '/dashboardadmin';
+                            break;
+                        case 'staff':
+                            $homeUrl = '/dashboardpegawai';
+                            break;
+                    }
+                }
+            @endphp
+
+            <button class="home-button" onclick="window.location.href='{{ url($homeUrl) }}'">Home</button>
             <button class="kpi-button" onclick="window.location.href='{{ url('/kpi') }}'">KPI</button>
             <button class="logout-button" onclick="window.location.href='{{ url('/') }}'">Logout</button>
         </div>
@@ -136,10 +156,6 @@
                     <div class="alert alert-success">{{ session('success') }}</div>
                 @endif
 
-                <form action="{{ route('kpi.update', $kpi->id) }}" method="POST" >
-                    @csrf
-                    @method('PUT')
-                    <input type="hidden" name="status" id="status" value="Review SPV">
                         <table class="table table-borderless" style="width: 100%;">
                             <colgroup>
                                 <col span="1" style="width: 15%;">
@@ -162,7 +178,7 @@
                                     <td>Nama Pekerja</td>
                                     <td>:</td>
                                     <td>
-                                        <select name="id_pegawai" id="id_pegawai" class="form-control" onchange="updateDetails()">
+                                        <select name="id_pegawai" id="id_pegawai" class="form-control" onchange="updateDetails()" disabled>
                                             @foreach ($pegawai->where('jabatan', 'Staff') as $p)
                                                 <option value="{{ $p->id }}" data-jabatan="{{ $p->jabatan }}" data-bidang="{{ $p->bidang->nama }}" data-subbidang="{{ $p->subbidang->nama }}" data-masakerja="{{ $p->masakerja }}" data-atasan="{{ $p->atasan ? $p->atasan->id : '' }}" {{ $kpi->id_pegawai == $p->id ? 'selected' : '' }}>{{ $p->nama }}</option>
                                             @endforeach
@@ -171,7 +187,7 @@
                                 <td>Nama (Atasan Langsung)</td>
                                 <td>:</td>
                                 <td colspan="2">
-                                    <select name="id_penilai" id="id_penilai" class="form-control">
+                                    <select name="id_penilai" id="id_penilai" class="form-control" disabled>
                                         <!-- Opsi akan diisi oleh JavaScript -->
                                     </select>
                                 </td>
@@ -180,15 +196,15 @@
                                     <td>Jabatan</td>
                                     <td>:</td>
                                     <td>
-                                        <input type="text" name="jabatan" id="jabatan" class="form-control" readonly>
+                                        <input type="text" name="jabatan" id="jabatan" class="form-control" disabled>
                                     </td>
                                     <td>Periode Penilaian</td>
                                     <td>:</td>
-                                    <td><input type="number" name="tahun" id="tahun" class="form-control @error('tahun') is-invalid @enderror" min="2000" placeholder="Masukan Tahun" value="{{ $kpi->tahun }}" required></td>
+                                    <td><input type="number" name="tahun" id="tahun" class="form-control @error('tahun') is-invalid @enderror" min="2000" placeholder="Masukan Tahun" value="{{ $kpi->tahun }}" disabled></td>
                                     @error('tahun')
-                                        <<div class="text-danger">{{ 'Periode penilaian untuk pegawai ini sudah ada' }}</div>
+                                    <div class="text-danger">{{ 'Periode penilaian untuk pegawai ini sudah ada' }}</div>
                                     @enderror
-                                    <td><select name="semester" id="semester" class="form-control" aria-placeholder="Semester" required>
+                                    <td><select name="semester" id="semester" class="form-control" aria-placeholder="Semester" disabled>
                                         <option value="1" {{ $kpi->semester == 1 ? 'selected' : '' }}>1</option>
                                         <option value="2" {{ $kpi->semester == 2 ? 'selected' : '' }}>2</option>
                                     </select>
@@ -198,21 +214,21 @@
                                     <td>Bidang</td>
                                     <td>:</td>
                                     <td>
-                                        <input type="text" name="bidang" id="bidang" class="form-control" readonly>
+                                        <input type="text" name="bidang" id="bidang" class="form-control" disabled>
                                     </td>
                                     <td>Tanggal Penilaian</td>
                                     <td>:</td>
-                                    <td colspan="2"><input type="date" name="tanggal_penilaian" id="tanggal" class="form-control" value="{{ $kpi->tanggal_penilaian }}" required></td>
+                                    <td colspan="2"><input type="date" name="tanggal_penilaian" id="tanggal" class="form-control" value="{{ $kpi->tanggal_penilaian }}" disabled></td>
                                 </tr>
                                 <tr>
                                     <td>Masa Kerja</td>
                                     <td>:</td>
                                     <td>
-                                        <input type="text" name="masa_kerja" id="masa_kerja" class="form-control" readonly>
+                                        <input type="text" name="masa_kerja" id="masa_kerja" class="form-control" disabled>
                                     </td>
                                     <td>Sub Bidang</td>
                                     <td>:</td>
-                                    <td colspan="2"><input type="text" name="sub_bidang" id="sub_bidang" class="form-control" readonly></td>
+                                    <td colspan="2"><input type="text" name="sub_bidang" id="sub_bidang" class="form-control" disabled></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -253,7 +269,8 @@
                                     <td>{{ $item->nama }}</td>
                                     <td style="text-align: center">{{ $item->bobot }}</td>
                                     <td>
-                                        <select name="items[{{ $item->id }}][nilai_spv]" class="form-control nilai_spv" data-bobot="{{ $item->bobot }}">
+                                        <input type="hidden" name="items[{{ $item->id }}][nilai_spv]" value="{{ $kpiItem->nilai_spv ?? '' }}" disabled>
+                                        <select name="items[{{ $item->id }}][nilai_spv]" class="form-control nilai_spv" data-bobot="{{ $item->bobot }}" disabled>
                                             <option style="text-align: center" value="">Pilih Nilai SPV</option>
                                             @foreach ($skalaPenilaian as $skala)
                                                 <option value="{{ $skala->angka }}" {{ $kpiItem && $kpiItem->nilai_spv == $skala->angka ? 'selected' : '' }}>{{ $skala->angka }} - {{ $skala->keterangan }}</option>
@@ -261,21 +278,21 @@
                                         </select>
                                     </td>
                                     <td>
-                                        <input type="hidden" name="items[{{ $item->id }}][nilai_manager]" value="">
-                                        <select name="items[{{ $item->id }}][nilai_manager]" class="form-control nilai_manager" data-bobot="{{ $item->bobot }}" disabled >
+                                        <input type="hidden" name="items[{{ $item->id }}][nilai_manager]" value="{{ $kpiItem->nilai_manager ?? '' }}" disabled>
+                                        <select name="items[{{ $item->id }}][nilai_manager]" class="form-control nilai_manager" data-bobot="{{ $item->bobot }}" disabled>
                                             <option style="text-align: center" value="">Pilih Nilai Manager</option>
                                             @foreach ($skalaPenilaian as $skala)
                                                 <option value="{{ $skala->angka }}" {{ $kpiItem && $kpiItem->nilai_manager == $skala->angka ? 'selected' : '' }}>{{ $skala->angka }} - {{ $skala->keterangan }}</option>
                                             @endforeach
                                         </select>
                                     </td>
-                                    <td><input  style="text-align: center" type="number" name="items[{{ $item->id }}][score]" class="form-control score" data-bobot="{{ $item->bobot }}" value="{{ $item->bobot * ($kpiItem->nilai_spv + $kpiItem->nilai_manager)/2 }}" readonly></td>
-                                    <td><textarea style="width: 100%" name="items[{{ $item->id }}][catatan]">{{ $kpiItem ? $kpiItem->catatan : '' }}</textarea></td>
+                                    <td><input  style="text-align: center" type="number" name="items[{{ $item->id }}][score]" class="form-control score" data-bobot="{{ $item->bobot }}" value="{{ $item->bobot * ($kpiItem->nilai_spv + $kpiItem->nilai_manager)/2 }}" disabled></td>
+                                    <td><textarea style="width: 100%" name="items[{{ $item->id }}][catatan]" disabled>{{ $kpiItem ? $kpiItem->catatan : '' }}</textarea></td>
                                 </tr>
                             @endforeach
                             <tr>
                                 <td colspan="5" style="text-align: center;"><strong>Jumlah</strong></td>
-                                <td><input style="text-align: center" type="number" name="total_score" id="totalScore" class="form-control" readonly></td><td></td>
+                                <td><input style="text-align: center" type="number" name="total_score" id="totalScore" class="form-control" disabled></td><td></td>
                             </tr>
                         </tbody>
                 </table>
@@ -312,19 +329,19 @@
                                 <tr>
                                     <td>{{ $item->nama }}</td>
                                     <td>
-                                        <input style="text-align: center" type="number" name="kedisiplinan[{{ $item->id }}][hari]" class="form-control hari" data-bobot="{{ $item->bobot }}" value="{{ $kpiItemKedisiplinan ? $kpiItemKedisiplinan->hari : '0'}}"> </td>
+                                        <input style="text-align: center" type="number" name="kedisiplinan[{{ $item->id }}][hari]" class="form-control hari" data-bobot="{{ $item->bobot }}" value="{{ $kpiItemKedisiplinan ? $kpiItemKedisiplinan->hari : '0'}}" disabled> </td>
                                         <input type="hidden" id="hariSuratTeguran" value="{{ $hariSuratTeguran }}">
                                     <td>
-                                        <input style="text-align: center" type="number" name="kedisiplinan[{{ $item->id }}][penalty_score]" class="form-control penalty-score" data-bobot="{{ $item->bobot }}" value="{{ $item->bobot * $kpiItemKedisiplinan->hari }}" readonly></td>
+                                        <input style="text-align: center" type="number" name="kedisiplinan[{{ $item->id }}][penalty_score]" class="form-control penalty-score" data-bobot="{{ $item->bobot }}" value="{{ $item->bobot * $kpiItemKedisiplinan->hari }}" disabled></td>
                                     @if ($loop->first)  {{-- Hanya tampilkan di baris pertama --}}
                                     <td rowspan="{{ $jumlahKedisiplinan + 3}}" style="vertical-align : middle;text-align:center;">  {{-- rowspan dinamis --}}
-                                        <input style="text-align: center" type="number" name="total_penalty_score" id="totalPenaltyScore" class="form-control" value="{{ $kpi->total_penalty_score }}" readonly>
+                                        <input style="text-align: center" type="number" name="total_penalty_score" id="totalPenaltyScore" class="form-control" value="{{ $kpi->total_penalty_score }}" disabled>
 
                                     </td>
-                                    <input type="hidden" name="grade" value="{{ $kpi->grade }}">
-                                    <td rowspan="{{ $jumlahKedisiplinan + 3}}"  style="vertical-align : middle;text-align:center;"><input style="text-align: center" type="text" name="grade" id="grade" class="form-control" value="{{ $kpi->grade }}" readonly></td>
-                                    <input type="hidden" name="nilai_akhir" value="{{ $kpi->nilai_akhir }}">
-                                    <td rowspan="{{ $jumlahKedisiplinan + 3}}" style="vertical-align : middle;text-align:center;" ><input style="text-align: center" type="number" name="nilai_akhir" id="nilaiAkhir" class="form-control" value="{{ $kpi->nilai_akhir }}" readonly></td>
+                                    <input type="hidden" name="grade" value="{{ $kpi->grade }}" disabled>
+                                    <td rowspan="{{ $jumlahKedisiplinan + 3}}"  style="vertical-align : middle;text-align:center;"><input style="text-align: center" type="text" name="grade" id="grade" class="form-control" value="{{ $kpi->grade }}" disabled></td>
+                                    <input type="hidden" name="nilai_akhir" value="{{ $kpi->nilai_akhir }}" disabled>
+                                    <td rowspan="{{ $jumlahKedisiplinan + 3}}" style="vertical-align : middle;text-align:center;" ><input style="text-align: center" type="number" name="nilai_akhir" id="nilaiAkhir" class="form-control" value="{{ $kpi->nilai_akhir }}" disabled></td>
 
                                 @endif
                                 </tr>
@@ -345,25 +362,26 @@
                         <td>Catatan:</td>
                     </tr>
                     <tr>
-                        <td><textarea name="kelebihan" id="kelebihan" class="form-control"> {{ $kpi->kelebihan }} </textarea></td>
+                        <td><textarea name="kelebihan" id="kelebihan" class="form-control" disabled> {{ $kpi->kelebihan }} </textarea></td>
                         <td style="text-align: center">Pekerja yang mendapat Surat Teguran atau sedang menjalani masa hukuman tidak berhak mendapat Final Grade "B"</td>
-                        <td style="align-content: flex-end"><button type="submit" class="btn btn-success"><i class="bi bi-save"></i> Simpan</button></td>
+                        <td></td>
                     </tr>
                     <tr>
                         <td>Improvement:</td>
                         <td></td>
-                        <td><button type="submit" class="btn btn-warning" style="color: white" name="ajukan" value="1" onclick="return validateForm()"><i class="bi bi-send-check" style="color: white"></i>  Ajukan</button></td>
+                        {{-- <td><button type="submit" class="btn btn-outline-success" style="color: white;background-color: #2ECC71" name="approve" value="1" onclick="return validateForm()"><i class="bi bi-check2-square" style="color: white"></i>  Approve</button></td> --}}
+                        <td><a href="{{ route('kpi.download', $kpi->id) }}" class="btn btn-primary">Download PDF</a>
+                        </td>
                     </tr>
                     <tr>
-                        <td><textarea name="improvement" id="improvement" class="form-control"> {{ $kpi->improvement }} </textarea></td>
+                        <td><textarea name="improvement" id="improvement" class="form-control" disabled> {{ $kpi->improvement }} </textarea></td>
                         <td></td> {{-- Sel kosong --}}
-                        {{-- <td><button type="submit" class="btn btn-primary" name="download"><i class="bi bi-download"></i>  Download</button></td> --}}
+                        <td></td>
                     </tr>
 
                 </table>
 
 
-            </form>
             </div>
         </div>
     </div>
@@ -528,22 +546,22 @@
             nilaiAkhirInput.addEventListener('input', updateGrade);
 
             function validateForm() {
-                const nilaiSpvSelects = document.querySelectorAll('.nilai_spv');
-                let hasEmptyNilaiSpv = false;
+                const nilaiManagerSelects = document.querySelectorAll('.nilai_manager');
+                let hasEmptyNilaiManager = false;
 
-                nilaiSpvSelects.forEach(select => {
+                nilaiManagerSelects.forEach(select => {
                     if (select.value === '') {
-                        hasEmptyNilaiSpv = true;
+                        hasEmptyNilaiManager = true;
                     }
                 });
 
-                if (hasEmptyNilaiSpv) {
-                    alert('Nilai SPV masih ada yang kosong. Mohon lengkapi terlebih dahulu.');
+                if (hasEmptyNilaiManager) {
+                    alert('Nilai Manager masih ada yang kosong. Mohon lengkapi terlebih dahulu.');
                     return false; // Mencegah form disubmit
                 }
 
 
-                document.getElementById('status').value = 'Review Manager'; // Set status menjadi 'Review Manager'
+                document.getElementById('status').value = 'Approved'; // Set status_kpi menjadi 'Approved'
 
 
 
